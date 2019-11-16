@@ -1,0 +1,271 @@
+task SkullEnemy(x, y,lifeE, angleE, speedE, mov, attack, auxNumber){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	let ex=0;
+	let ey =0;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, lifeE);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+	TDrawLoopSkullEnemy(objEnemy);
+	TMainLoop;
+	TMovement;
+	//TAttack;
+	TFinalize;
+
+	}
+	
+
+    
+
+    task TMainLoop {
+    	
+		let count =1;
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	//	ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30); 
+     //   ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30);
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          isOut = true;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+		count++;
+	yield;
+		}
+		
+      }
+    
+	task TMovement{
+		
+		alternative(mov)
+		case(0){
+			TAttack;
+		}
+		case(1){
+			while(ObjMove_GetY(objEnemy) <= GetStgFrameHeight()/2-30){yield;}
+			ObjMove_SetSpeed(objEnemy,0 );
+			TAttack;
+
+		}
+		case(2){
+			
+		}
+		case(3){
+			
+		}
+		case(4){
+			
+		}
+		
+	}
+	
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+
+		alternative(attack)
+		case(1){
+			while(!Obj_IsDeleted(objEnemy)){
+				PlaySFX(enemyAttack4);
+				CreateShotOA1(objEnemy,1 ,rand(0,360 ) ,99 ,60 );
+				wait(30);
+			yield;
+			}
+			
+
+		}
+		case(2){
+			
+		}
+		case(3){
+			
+		}
+		case(9){
+			countDown(auxNumber*15);
+			survivalAttack(objEnemy);
+			survivalAttack2(objEnemy,auxNumber);
+			survivalAttack3(objEnemy);
+			wait(auxNumber*60*15);
+			Obj_Delete(objEnemy);
+		}
+	}
+    
+
+    task TFinalize {
+        while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		DeathAttackSkull(objEnemy);
+		Obj_Delete(objEnemy);
+		if(!isOut){
+			PlaySFX(damage);
+			AddScore(100 * GetCommonData("diff",1 ));
+		}else{AddScore(1);}
+    }
+}
+task TDrawLoopSkullEnemy(objEnemy) { 
+		//SKULL
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/skull.png";
+		let frame =1;
+		
+		ObjPrim_SetTexture(objEnemy, img );
+		ObjSprite2D_SetSourceRect(objEnemy, 0,0,55,64); 
+		ObjRender_SetScaleXYZ(objEnemy, 0.8,0.8 ,1 ) ;
+		ObjSprite2D_SetDestCenter(objEnemy);
+		
+		
+		
+		while(!Obj_IsDeleted(objEnemy)){
+			// HITBOXES 
+			
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 15); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 15);
+			
+			//animação 
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy, 0,0,55,64);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy, 55,0,109,64);}
+			if(frame == 24){ObjSprite2D_SetSourceRect(objEnemy, 109,0,164,64);}
+			frame++;
+			if(frame >=32){frame=0;}
+	
+			yield;
+		}
+		
+    }
+
+task DeathAttackSkull(objEnemy){
+	
+}
+
+task TRingShot2(objEnemy){
+	loop{
+		wait(75);
+		let baseAngle = GetAngleToPlayer(objEnemy);
+		loop(30){
+		let objshot = CreateShotOA1(objEnemy,2.5 ,baseAngle ,44 ,0 );
+		ObjRender_SetScaleXYZ(objshot, 1.5,1.5 ,0 );
+		baseAngle+=360/30;
+		}	
+
+	}
+}
+task TAuxLaser2(objEnemy){
+	loop{
+		wait(180);
+		CreateStraightLaserA1(ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), GetAngleToPlayer(objEnemy),555 ,20 ,35 ,222 ,60 );
+		
+
+	}
+}
+
+task countDown(time){
+
+	let objText = ObjText_Create;
+	ObjText_SetText(objText, truncate(time));
+	//ObjRender_SetPosition(objText, 340, 50, 0);
+	ObjRender_SetPosition(objText, 100, 100, 0);
+	ObjText_SetFontSize(objText, 40); // tamanho da fonte
+	//ObjText_SetFontType(objText, "Comic Sans MS"); // nome da fonte
+	ObjText_SetFontColorTop(objText, 255, 0, 0); // cor no topo das letras
+	ObjText_SetFontColorBottom(objText, 0, 0, 255); // cor na parte de baixo das letra
+
+	let objText2 = ObjText_Create;
+	ObjText_SetText(objText2, "SURVIVE!!!");
+	//ObjRender_SetPosition(objText, 340, 50, 0);
+	ObjRender_SetPosition(objText2, 50, 50, 0);
+	ObjText_SetFontSize(objText2, 40); // tamanho da fonte
+	//ObjText_SetFontType(objText, "Comic Sans MS"); // nome da fonte
+	ObjText_SetFontColorTop(objText2, 255, 0, 0); // cor no topo das letras
+	ObjText_SetFontColorBottom(objText2, 0, 0, 255); // cor na parte de baixo das letra
+	while(time>0){
+		ObjText_SetText(objText, time);
+		wait(1);
+		time-=1/30;
+	yield;
+	}
+	Obj_Delete(objText);
+	Obj_Delete(objText2);
+}
+
+task survivalAttack(objEnemy){
+	loop{
+
+		loop(3){
+			//let dir=0;
+		let dir = GetAngleToPlayer(objEnemy);
+		loop(18){
+			if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+			PlaySFX(enemyAttack4);
+			let bullet =CreateShotA1(ObjMove_GetX(objEnemy)+120* cos(dir),ObjMove_GetY(objEnemy)+30*sin(dir),1 ,dir ,14 ,7 );
+			dir+= 360/18;
+			
+		}
+
+		wait(10);
+		
+		loop(18){
+			if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+			PlaySFX(enemyAttack4);
+			let bullet =CreateShotA1(ObjMove_GetX(objEnemy)+30* cos(dir),ObjMove_GetY(objEnemy)+90*sin(dir),1 ,dir ,14 ,7 );
+			dir+= 360/18;
+			
+		}
+
+		wait(10);
+		}
+		
+		wait(180);
+
+
+
+
+	yield;
+	}
+}
+
+task survivalAttack2(objEnemy,auxNumber){
+	loop{
+		loop(auxNumber*3){
+			if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+			PlaySFX(enemyAttack3);
+		let objShot = CreateShotOA1(objEnemy, 2,rand(225,315 ) ,170 ,0 );
+		splitAttack(objShot,auxNumber);
+		wait(rand(10,30 ));
+	}
+	wait(300);
+	yield;
+	}
+	
+
+	task splitAttack(objShot,auxNumber){
+		while(ObjMove_GetY(objShot) > 0){yield;}
+		ObjMove_AddPatternA1(objShot,1 ,NO_CHANGE ,90 );
+		loop(20){
+			if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+			if(!Obj_IsDeleted(objShot)){
+				PlaySFX(enemyAttack2);
+				CreateShotOA1(objShot, 2,0 ,116 ,0 );
+				CreateShotOA1(objShot, 2,180 ,116 ,0 );
+				wait(55-(auxNumber*11));
+
+			}
+			
+			
+		}
+			}
+	
+	
+	
+
+}
+task survivalAttack3(objEnemy){
+	
+}

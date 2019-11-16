@@ -1,0 +1,305 @@
+#TouhouDanmakufu[Player]
+#ScriptVersion[3]
+#ID["GLENRYN_A"]
+#Title["GlenrynPlayer"]
+#Text["ICE POWER"]
+#ReplayName["GLENRYN_A"]
+
+#include"../SoundControl.dnh"
+
+let dir = GetCurrentScriptDirectory();
+let playerID = GetPlayerObjectID();
+let playerObj = ObjPrim_Create(OBJ_SPRITE_2D);
+let hitBoxObj = ObjPrim_Create(OBJ_SPRITE_2D);
+
+let extraLife1 = false;
+let extraLife2 = false;
+let extraLife3 = false;
+
+let extraSpell1 = false;
+let extraSpell2 = false;
+let extraSpell3 = false;
+
+let count = -1;
+let isFocus = false;
+
+//Shot sheet
+let shotGlenryn = dir ~ "player_shot.txt";
+
+//texture sheet
+let playerSprite = dir ~ "glenryn_sprite.png";
+let hitBoxSprite = dir ~ "marisasprite.png";
+
+//spell texture
+let spellTexture = dir ~ "ring.png";
+
+@Initialize{
+	LoadPlayerShotData(shotGlenryn);
+
+	SetPlayerSpeed(5,2.5 );
+
+	ObjPlayer_AddIntersectionCircleA1(playerID,0,0,2,16);
+
+	SetPlayerClip(0+6,0+10 ,384-6 ,448-10 );
+
+	SetPlayerDownStateFrame(60);
+	SetPlayerRebirthFrame(40);
+	//SetPlayerAutoItemCollectLine(120);
+
+	renderPlayer;
+	renderHitBox(GetPlayerX,GetPlayerY);
+}
+
+@Event{
+	alternative(GetEventType)
+		case(EV_REQUEST_SPELL){
+			if(GetPlayerSpell()>0){
+				SetScriptResult(true);
+				SetPlayerSpell(GetPlayerSpell() - 1);
+				specialAttack;
+			}else{
+				SetScriptResult(false);
+			}
+		}
+		case(EV_PLAYER_SHOOTDOWN){
+			SetForbidPlayerShot(true);
+			SetForbidPlayerSpell(true);
+			Obj_SetVisible(playerObj, false);
+			Obj_SetVisible(hitBoxObj, false);
+			PlaySFX(plDead);
+		}
+		case(EV_PLAYER_REBIRTH){
+			SetForbidPlayerShot(false);
+			SetForbidPlayerSpell(false);
+			SetPlayerInvincibilityFrame(120);
+			Obj_SetVisible(playerObj, true);
+			Obj_SetVisible(hitBoxObj, true);
+			SetPlayerSpell(GetAreaCommonData("Options", "Spells", 3));
+		}
+
+}
+
+@MainLoop{
+	//EXTRA LIVES
+
+	if(GetScore() >= 25000 && extraLife1 == false ){
+		extraLife1 =true;
+
+		PlaySFX(bonusLife);
+		SetPlayerSpell(GetPlayerSpell()+1);
+		AddScore(1);
+	}
+
+	if(GetScore() >= 50000 && extraLife2 == false ){
+		extraLife2 =true;
+		SetPlayerLife(GetPlayerLife()+1);
+		SetPlayerSpell(GetPlayerSpell()+1);
+		AddScore(1);
+		PlaySFX(bonusLife);
+	}
+
+	if(GetScore() >= 100000 && extraLife3 == false ){
+		extraLife3 =true;
+		PlaySFX(bonusLife);
+		SetPlayerSpell(GetPlayerSpell()+1);
+		AddScore(1);
+	}
+
+	//EXTRA SPELLS
+
+	if(GetGraze() == 100 && extraSpell1 == false){
+		extraSpell1 = true;
+		SetPlayerLife(GetPlayerLife()+1);
+		PlaySFX(bonusSpell);
+	}
+	if(GetGraze() == 200 && extraSpell1 == true && extraSpell2 == false){
+		extraSpell2 = true;
+		SetPlayerLife(GetPlayerLife()+1);
+		PlaySFX(bonusSpell);
+	}
+	if(GetGraze() == 300 && extraSpell1 == true && extraSpell2 == true && extraSpell3 == false){
+		extraSpell3 = true;
+		SetPlayerLife(GetPlayerLife()+1);
+		PlaySFX(bonusSpell);
+	}
+
+
+	//RENDER PLAYER SPRITE
+	ObjRender_SetPosition(playerObj,GetPlayerX(),GetPlayerY() , 0 );
+	if(GetVirtualKeyState(VK_LEFT)==KEY_PUSH || GetVirtualKeyState(VK_LEFT)==KEY_HOLD ){
+		ObjRender_SetAngleZ(playerObj, 335);
+	}
+	else if(GetVirtualKeyState(VK_RIGHT)==KEY_PUSH || GetVirtualKeyState(VK_RIGHT)==KEY_HOLD ){
+		ObjRender_SetAngleZ(playerObj, 20);
+	}
+	else{ObjRender_SetAngleZ(playerObj, 0);}
+
+	//FOCUS / NOT FOCUS
+	if(GetVirtualKeyState(VK_SLOWMOVE)==KEY_PUSH || GetVirtualKeyState(VK_SLOWMOVE)==KEY_HOLD ){
+		isFocus = true;
+	}
+	if(GetVirtualKeyState(VK_SLOWMOVE)==KEY_PULL){
+		isFocus = false;
+	}
+
+	//PLAYER SHOT
+
+	if(IsPermitPlayerShot()){
+		if(GetVirtualKeyState(VK_SHOT) == KEY_PUSH || GetVirtualKeyState(VK_SHOT) == KEY_HOLD){
+			count++;
+			if(count > 60){count =0;}
+
+		}
+
+		if(GetVirtualKeyState(VK_SHOT) == KEY_PULL){ count = -1;}
+
+		//focus shot
+		if(isFocus){
+			if(count % 15 == 1 && count!= 0){
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),6,270-10,10,1,2);
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),6,270,10,1,2);
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),6,270+10,10,1,2);
+				PlaySFX(click);
+				
+			}
+		}
+		//normal shot
+		else{
+			if(count % 5 == 1 && count!= 0 ){
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),10,270-25,3,1,1);
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),10,270-10,3,1,1);
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),10,270,3,1,1);
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),10,270+10,3,1,1);
+				CreatePlayerShotA1(GetPlayerX(),GetPlayerY(),10,270+25,3,1,1);
+				PlaySFX(plShot);
+				
+			}
+		}
+	}
+
+
+	yield;
+}
+
+@Finalize{}
+
+
+task renderPlayer{
+	let animFrame =0;
+	ObjPrim_SetTexture(playerObj,playerSprite );
+	Obj_SetRenderPriorityI(playerObj,31 );
+	ObjRender_SetBlendType(playerObj,BLEND_ALPHA );
+	ObjRender_SetAngleXYZ(playerObj,0 ,0 ,0 );
+	ObjRender_SetScaleXYZ(playerObj,1.3 ,1.3 ,0 );
+	ObjRender_SetAlpha(playerObj,255 );
+	ObjSprite2D_SetSourceRect(playerObj,0,148,32,195 );
+	ObjSprite2D_SetDestCenter(playerObj);
+	ObjRender_SetPosition(playerObj, GetPlayerX(),GetPlayerY() , 0);
+
+	while(!Obj_IsDeleted(playerObj)){
+				ObjRender_SetPosition(playerObj,GetPlayerX() ,GetPlayerY() ,0 );
+		//animation
+		if(animFrame==40){animFrame=0;}
+
+
+		if(animFrame == 8) {	ObjSprite2D_SetSourceRect(playerObj,0,148,32,195 );}
+		if(animFrame == 16){	ObjSprite2D_SetSourceRect(playerObj,32,148,64,195 );}
+		if(animFrame == 24){	ObjSprite2D_SetSourceRect(playerObj,64,148,96,195 );}
+		if(animFrame == 32){	ObjSprite2D_SetSourceRect(playerObj,96,148,128,195 );}
+		animFrame++;
+		yield;
+	}
+
+}
+
+task renderHitBox(x,y){
+	let alpha =0;
+	let spin =0; 
+
+	ObjPrim_SetTexture(hitBoxObj,hitBoxSprite );
+	Obj_SetRenderPriorityI(hitBoxObj,50 );
+	ObjRender_SetBlendType(hitBoxObj,BLEND_ALPHA );
+	ObjRender_SetScaleXYZ(hitBoxObj,1 ,1 ,0 );
+	ObjRender_SetAlpha(hitBoxObj,255 );
+	ObjSprite2D_SetSourceRect(hitBoxObj,0,64,64,128 );
+	ObjSprite2D_SetDestCenter(hitBoxObj);
+
+	while(!Obj_IsDeleted(hitBoxObj)){
+		ObjRender_SetPosition(hitBoxObj,GetPlayerX() ,GetPlayerY() ,0 );
+		ObjRender_SetAngleZ(hitBoxObj,spin );
+		ObjRender_SetAlpha(hitBoxObj,alpha );
+
+		spin+=2;
+
+		if(isFocus){
+			alpha =255;
+		}
+		else{
+			alpha =0;
+		}
+
+		 yield;
+	}
+}
+
+
+task specialAttack{
+	//prepare
+	SetForbidPlayerSpell(true);
+	SetForbidPlayerShot(true);
+	SetPlayerInvincibilityFrame(180);
+	//SetPlayerSpeed(1,1 );
+
+	//spellcard object
+	let spellObject = ObjSpell_Create();
+	ObjSpell_Regist(spellObject);
+	ObjSpell_SetEraseShot(spellObject,true);
+
+	//bomb
+	loop(16){
+		specialAttackEffect;
+		ObjSpell_SetIntersectionCircle(spellObject,GetPlayerX(),GetPlayerY(),512);
+		ObjSpell_SetDamage(spellObject,50);
+		wait(10);
+	}
+
+	//cleanup and reset
+	SetForbidPlayerSpell(false);
+	SetForbidPlayerShot(false);
+	//SetPlayerSpeed(5,2.5 );
+	Obj_Delete(GetSpellManageObject); 	
+}
+
+task specialAttackEffect{
+	let scale =0;
+	let alpha = 200;
+
+	let obj = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(obj,spellTexture );
+	ObjRender_SetBlendType(obj,BLEND_ADD_ARGB );
+	ObjRender_SetAlpha(obj,alpha );
+	Obj_SetRenderPriorityI(obj,40 );
+	ObjRender_SetScaleXYZ(obj, scale,scale ,0 );
+	ObjSprite2D_SetSourceRect(obj,0 ,0 ,128 ,128 );
+	ObjSprite2D_SetDestCenter(obj);
+	ObjRender_SetPosition(obj,GetPlayerX() ,GetPlayerY() ,0 );
+	ObjRender_SetColor(obj,truncate(rand(128,255)) ,truncate(rand(128,255)) ,truncate(rand(128,255)) );
+	PlaySFX(plbomb);
+	while(alpha>0){
+		ObjRender_SetAlpha(obj,alpha );
+		ObjRender_SetScaleXYZ(obj,scale ,scale ,0 );
+
+		scale+=0.4; 
+		alpha-=2;
+
+
+		yield;
+	}
+	Obj_Delete(obj);
+}
+
+function wait(n){
+	loop(n){
+		yield;
+	}
+}

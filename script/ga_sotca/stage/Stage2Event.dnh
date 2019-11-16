@@ -1,0 +1,153 @@
+function Stage2Event(){
+    //cor do texto glenryn
+    //ObjText_SetFontColorTop(objText ,0,255,255);
+    //ObjText_SetFontColorBottom(objText ,0,255,255);
+    //cor do texto albert
+    //ObjText_SetFontColorTop(objText, 178,34,34); 
+    //ObjText_SetFontColorBottom(objText, 178,34,34);
+
+
+    //faces grenryn
+
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95); //1
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 191, 1, 285, 95); //3
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 1, 380, 95); //4
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 97, 95, 190); //5
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 97, 190, 190); //6
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 190,97 ,285 ,190 ); //7
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 97, 380, 190); //8
+
+
+
+// espera o ataque especial do jogador acabar
+	while(IsPlayerSpellActive()){yield;} 
+//impede o jogador de atacar
+	SetForbidPlayerShot(true);
+	SetForbidPlayerSpell(true);
+	//background para o texto
+    let bkgdpath = GetCurrentScriptDirectory() ~ "../img/event/txtback.png";
+    let objTextBack = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(objTextBack, 80);
+    ObjPrim_SetTexture(objTextBack, bkgdpath);
+    ObjSprite2D_SetSourceRect(objTextBack, 0, 0, 352, 70);
+    ObjSprite2D_SetDestRect(objTextBack, 0, 0, 352, 70);
+    ObjRender_SetX(objTextBack, 18);
+    ObjRender_SetY(objTextBack, 320);
+    ObjRender_SetAlpha(objTextBack, 160);
+   
+
+    //imagem do jogador
+    let glenrynImg = GetCurrentScriptDirectory() ~ "../img/event/glenrynFaceSet.png";
+    let glenrynimgObj = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(glenrynimgObj, 80);
+    ObjPrim_SetTexture(glenrynimgObj, glenrynImg);
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95);
+    ObjSprite2D_SetDestCenter(glenrynimgObj);
+    ObjRender_SetScaleXYZ(glenrynimgObj,1,1 ,1 );
+    ObjRender_SetX(glenrynimgObj, 100);
+    ObjRender_SetY(glenrynimgObj, 200);
+
+    //imagem do inimigo
+    let bossImg = GetCurrentScriptDirectory() ~ "../img/event/albert.png";
+    let bossImgObj = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(bossImgObj, 80);
+    ObjPrim_SetTexture(bossImgObj, bossImg);
+    ObjSprite2D_SetSourceRect(bossImgObj, 0, 0, 128, 128);
+    ObjSprite2D_SetDestCenter(bossImgObj);
+    ObjRender_SetScaleXYZ(bossImgObj,0.8 ,0.8 ,1 );
+    ObjRender_SetX(bossImgObj, 280);
+    ObjRender_SetY(bossImgObj, 200);
+
+    //texto
+    let objText = ObjText_Create();
+    ObjText_SetFontSize(objText, 20);
+    ObjText_SetFontType(objText, " Klein Text Book");
+    Obj_SetRenderPriorityI(objText, 81);
+    ObjText_SetFontColorTop(objText, 178,34,34); 
+    ObjText_SetFontColorBottom(objText, 178,34,34);
+    ObjText_SetFontBorderType(objText, BORDER_FULL);
+    ObjText_SetFontBorderColor(objText, 0, 0, 0);
+    ObjText_SetFontBorderWidth(objText, 1);
+    ObjRender_SetX(objText, 54);
+    ObjRender_SetY(objText, 340);
+    
+    //dialog
+    ObjText_SetText(objText, "Ei, o que voce esta fazendo aqui?");
+    WaitPressKey();
+
+    ObjText_SetText(objText, "Nada de mais... so estou atras de um [r] cara mesmo...");
+    ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+
+    WaitPressKey();
+
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95);
+    
+    ObjText_SetText(objText, "Como entrou aqui? esse campo de[r] treinamento e so para pessoal altorizado.");
+    ObjText_SetFontColorTop(objText, 178,34,34); 
+    ObjText_SetFontColorBottom(objText, 178,34,34);
+
+    WaitPressKey();
+
+	ObjText_SetText(objText, "Achei que as cidades estivessem[r] isoladas.");
+	ObjText_SetFontColorTop(objText, 178,34,34); 
+    ObjText_SetFontColorBottom(objText, 178,34,34);
+
+	WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+	ObjText_SetText(objText, "Nao... Aquele helicoptero foi[r] tranquilo de se lidar");
+	ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+
+	WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 287, 1, 380, 95);
+	ObjText_SetText(objText, "Mas, voce disse campo de treinamento?![r] Entao e por isso que drones aqui!");
+	ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+
+	WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 97, 380, 190); //8
+    ObjText_SetText(objText, "Eu brincava nessa floresta quando era[r] pequeno. Voces destruiram esse lugar![r] Voces vao pagar por isso!");
+    ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 97, 190, 190); //6
+    ObjText_SetText(objText, "Entao e voce que esta atras do mestre[r] Petrius! Agora voce vai ver!");
+    ObjText_SetFontColorTop(objText, 178,34,34); 
+    ObjText_SetFontColorBottom(objText, 178,34,34);
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 97, 190, 190); //6
+    ObjText_SetText(objText, "Hora de testar meu novo[r] armamento de rubi!");
+    ObjText_SetFontColorTop(objText, 178,34,34); 
+    ObjText_SetFontColorBottom(objText, 178,34,34);
+    WaitPressKey();
+
+    Obj_Delete(glenrynimgObj);
+    Obj_Delete(objText);
+    Obj_Delete(bossImgObj);
+    Obj_Delete(objTextBack);
+
+    SetForbidPlayerShot(false);
+	SetForbidPlayerSpell(false);
+	
+}
+
+function WaitPressKey(){ //Manual move. Sparen.
+   
+    
+    loop{
+     
+        if(GetVirtualKeyState(VK_OK) != KEY_FREE){
+        	loop(20){yield;}
+        	break;
+        }
+        yield;
+    }
+    
+}

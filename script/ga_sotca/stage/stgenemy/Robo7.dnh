@@ -1,0 +1,155 @@
+task Robo7(x, y,lifeE, angleE, speedE, mov, attack, auxNumber,diff){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	let ex=0;
+	let ey =0;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, lifeE);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+	TDrawLoopRobo7(objEnemy);
+	TMainLoop;
+	TMovement;
+	//TAttack;
+	TFinalize;
+	}
+	
+
+    
+
+    task TMainLoop {
+    	
+		let count =1;
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	//	ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30); 
+     //   ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30);
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          isOut = true;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+       
+
+		count++;
+	yield;
+		}
+		
+      }
+    
+	task TMovement{
+		
+		alternative(mov)
+		case(1){
+			wait(60);
+			ObjMove_SetSpeed(objEnemy,0 );
+			TAttack;
+			wait(180);
+			ObjMove_SetSpeed(objEnemy,speedE );
+		}
+		case(2){
+			wait(60);
+			ObjMove_SetSpeed(objEnemy,0 );
+			TAttack;
+			wait(30);
+			ObjMove_SetSpeed(objEnemy,speedE );
+			if(auxNumber == 180){
+				ObjMove_SetAngle(objEnemy,180 );
+				}
+			else{
+				ObjMove_SetAngle(objEnemy,0 );	
+			}
+			
+		}
+		case(3){
+			
+		}
+		case(4){
+			
+			
+		}
+		
+	}
+	
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+
+		alternative(attack)
+		case(1){
+			loop(diff){
+				ex = ObjMove_GetX(objEnemy);
+    			ey = ObjMove_GetY(objEnemy);
+				let ang = GetAngleToPlayer(objEnemy);
+				CreateStraightLaserA1(ex,ey ,ang ,555 ,20 ,60 , 222, 60 );
+				wait(60);
+				PlaySFX(enemyLaser);
+				wait(70-(diff*20));
+			}
+			
+		}
+		case(2){
+			ascent(i in -3..4){
+				ex = ObjMove_GetX(objEnemy);
+    			ey = ObjMove_GetY(objEnemy);
+				let ang = GetAngleToPlayer(objEnemy);
+				PlaySFX(enemyAttack1);
+				CreateShotA1(ex,ey ,2 ,ang+i*10 ,228 ,10 );
+			}
+		}
+		case(3){
+			ex = ObjMove_GetX(objEnemy);
+    		ey = ObjMove_GetY(objEnemy);
+			let ang = GetAngleToPlayer(objEnemy);
+			CreateStraightLaserA1(ex,ey ,ang ,555 ,20 ,60 , 222, 60 );
+			wait(60);
+			PlaySFX(enemyLaser);
+			
+		}
+	}
+    
+
+    task TFinalize {
+         while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		
+		Obj_Delete(objEnemy);
+		if(!isOut){
+			PlaySFX(damage);
+			AddScore(100 * GetCommonData("diff",1 ));
+		}else{AddScore(1);}
+    }
+}
+task TDrawLoopRobo7(objEnemy) { 
+		//ROBO IMG
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/RoboChopper.png";
+		let frame =1;
+		
+		ObjPrim_SetTexture(objEnemy, img );
+		ObjSprite2D_SetSourceRect(objEnemy, 192,256,256,320);
+		ObjSprite2D_SetDestCenter(objEnemy);
+		
+		
+		
+		while(!Obj_IsDeleted(objEnemy)){
+			// HITBOXES 
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25);
+			//animação 
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy, 192,256,256,320);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy, 256,256,320,320);}
+
+			frame++;
+			if(frame >=24){frame=0;}
+			yield;
+		}
+		
+    }

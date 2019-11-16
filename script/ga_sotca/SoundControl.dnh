@@ -1,0 +1,64 @@
+let plShot = SoundSFX( GetCurrentScriptDirectory() ~ "./se/PLSHOT.ogg");
+let plShot2 = SoundSFX( GetCurrentScriptDirectory() ~ "./se/PLSHOT2.ogg");
+let plbomb = SoundSFX( GetCurrentScriptDirectory() ~ "./se/PLBOMB.ogg");
+let select = SoundSFX( GetCurrentScriptDirectory() ~ "./se/SELECT.ogg");
+let cancel = SoundSFX( GetCurrentScriptDirectory() ~ "./se/CANCEL.ogg");
+let click = SoundSFX( GetCurrentScriptDirectory() ~ "./se/CLICK.ogg");
+let damage = SoundSFX( GetCurrentScriptDirectory() ~ "./se/DAMAGE.ogg");
+let damageCrystal = SoundSFX( GetCurrentScriptDirectory() ~ "./se/CRYSTALBREAK.ogg");
+let enemyAttack1 = SoundSFX(GetCurrentScriptDirectory()~ "./se/ATTACK.ogg");
+let enemyAttack2 = SoundSFX(GetCurrentScriptDirectory()~ "./se/ATTACK2.ogg");
+let enemyAttack3 = SoundSFX(GetCurrentScriptDirectory()~ "./se/ATTACK3.ogg");
+let enemyAttack4 = SoundSFX(GetCurrentScriptDirectory()~ "./se/ATTACK4.ogg");
+let enemyAttack5 = SoundSFX(GetCurrentScriptDirectory()~ "./se/ATTACK5.ogg");
+let enemyAttack6 = SoundSFX(GetCurrentScriptDirectory()~ "./se/ATTACK6.ogg");
+let enemyAttack7 = SoundSFX(GetCurrentScriptDirectory()~ "./se/ATTACK7.ogg");
+let bossExp = SoundSFX(GetCurrentScriptDirectory()~ "./se/BOSSEXP.ogg");
+let bonusLife = SoundSFX(GetCurrentScriptDirectory()~ "./se/BONUSLIFE.ogg");
+let bonusSpell = SoundSFX(GetCurrentScriptDirectory()~ "./se/BONUSSPELL.ogg");
+let plDead = SoundSFX(GetCurrentScriptDirectory()~ "./se/PLDEAD.ogg");
+let enemyLaser = SoundSFX(GetCurrentScriptDirectory()~ "./se/LASER.ogg");
+let enemyLaser2 = SoundSFX(GetCurrentScriptDirectory()~ "./se/LASER2.ogg");
+let bossTeleport = SoundSFX(GetCurrentScriptDirectory()~ "./se/BOSSTP.ogg");
+//ObjSound_Load(plShot, GetCurrentScriptDirectory() ~ "../se/plshot.wav");
+//let path =GetCurrentScriptDirectory() ~ "../se/plshot.wav";
+//let ...
+//load
+
+//PlaySFX(enemyAttack5);
+//ObjSound_Play(plShot);
+
+function SoundSFX(path){
+	let obj = ObjSound_Create();
+    ObjSound_Load(obj, path);
+    ObjSound_SetSoundDivision(obj, SOUND_SE);
+    ObjSound_SetLoopTime(obj, 0, 300);
+    let vol = GetAreaCommonData("Options","SFX",0 );
+    ObjSound_SetVolumeRate(obj, vol);
+   // NewTextObj2(100,100,ObjSound_GetVolumeRate(obj));
+    return obj;
+}
+
+
+function PlaySFX(obj) {
+    ObjSound_SetVolumeRate(obj, GetAreaCommonData("Options", "SFX", 25));
+    //NewTextObj2(200,200,ObjSound_GetVolumeRate(obj));
+    ObjSound_Play(obj);
+}
+function NewTextObj2(let x, let y,let txt){
+			let objText = ObjText_Create;
+	        ObjText_SetText(objText, txt);
+	        ObjText_SetFontSize(objText, 32); // tamanho da fonte
+	        ObjText_SetFontType(objText, "Comic Sans MS"); // nome da fonte
+	        ObjText_SetFontColorTop(objText, 0, 255, 0); // cor no topo das letras
+	        ObjText_SetFontColorBottom(objText, 0, 0, 0); // cor na parte de baixo das letras 
+	        ObjText_SetFontBorderType(objText, BORDER_FULL); // bordas no texto
+	        ObjText_SetFontBorderColor(objText, 96, 96, 96); // cor da borda
+	        ObjText_SetFontBorderWidth(objText, 1); // espessura da borda
+	        Obj_SetRenderPriority(objText, 0.95); // render priority ("camadas")
+	        ObjRender_SetPosition(objText, x, y, 0); // posição x,y,z
+	        ObjText_SetHorizontalAlignment(objText, ALIGNMENT_LEFT); // alinhamento
+	        ObjText_SetMaxWidth(objText, 480); // largura máxima antes da quebra de linha
+			//Obj_SetVisible(objText,true);
+		return objText;
+	 	}

@@ -1,0 +1,149 @@
+function Stage3Event(){
+    //cor do texto glenryn
+    //ObjText_SetFontColorTop(objText ,0,255,255);
+    //ObjText_SetFontColorBottom(objText ,0,255,255);
+    //cor do texto ROBO
+    //ObjText_SetFontColorTop(objText, 124,252,0); 
+    //ObjText_SetFontColorBottom(objText, 124,252,0);
+
+
+    //faces grenryn
+
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95); //1
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 191, 1, 285, 95); //3
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 1, 380, 95); //4
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 97, 95, 190); //5
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 97, 190, 190); //6
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 190,97 ,285 ,190 ); //7
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 97, 380, 190); //8
+
+
+
+// espera o ataque especial do jogador acabar
+	while(IsPlayerSpellActive()){yield;} 
+//impede o jogador de atacar
+	SetForbidPlayerShot(true);
+	SetForbidPlayerSpell(true);
+	//background para o texto
+    let bkgdpath = GetCurrentScriptDirectory() ~ "../img/event/txtback.png";
+    let objTextBack = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(objTextBack, 80);
+    ObjPrim_SetTexture(objTextBack, bkgdpath);
+    ObjSprite2D_SetSourceRect(objTextBack, 0, 0, 352, 70);
+    ObjSprite2D_SetDestRect(objTextBack, 0, 0, 352, 70);
+    ObjRender_SetX(objTextBack, 18);
+    ObjRender_SetY(objTextBack, 320);
+    ObjRender_SetAlpha(objTextBack, 160);
+   
+
+    //imagem do jogador
+    let glenrynImg = GetCurrentScriptDirectory() ~ "../img/event/glenrynFaceSet.png";
+    let glenrynimgObj = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(glenrynimgObj, 80);
+    ObjPrim_SetTexture(glenrynimgObj, glenrynImg);
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95);
+    ObjSprite2D_SetDestCenter(glenrynimgObj);
+    ObjRender_SetScaleXYZ(glenrynimgObj,1,1 ,1 );
+    ObjRender_SetX(glenrynimgObj, 100);
+    ObjRender_SetY(glenrynimgObj, 200);
+
+    //imagem do inimigo
+    let bossImg = GetCurrentScriptDirectory() ~ "../img/event/superRobot.png";
+    let bossImgObj = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(bossImgObj, 80);
+    ObjPrim_SetTexture(bossImgObj, bossImg);
+    ObjSprite2D_SetSourceRect(bossImgObj, 0, 0, 128, 128);
+    ObjSprite2D_SetDestCenter(bossImgObj);
+    ObjRender_SetScaleXYZ(bossImgObj,0.8 ,0.8 ,1 );
+    ObjRender_SetX(bossImgObj, 280);
+    ObjRender_SetY(bossImgObj, 200);
+
+    //texto
+    let objText = ObjText_Create();
+    ObjText_SetFontSize(objText, 20);
+    ObjText_SetFontType(objText, " Klein Text Book");
+    Obj_SetRenderPriorityI(objText, 81);
+    ObjText_SetFontColorTop(objText, 124,252,0); 
+    ObjText_SetFontColorBottom(objText, 124,252,0);
+    ObjText_SetFontBorderType(objText, BORDER_FULL);
+    ObjText_SetFontBorderColor(objText, 0, 0, 0);
+    ObjText_SetFontBorderWidth(objText, 1);
+    ObjRender_SetX(objText, 54);
+    ObjRender_SetY(objText, 340);
+    
+    //dialog
+
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 97, 95, 190); //5
+    ObjText_SetText(objText, "FORMA DE VIDA NAO IDENTIFICADA.[r] ANALISANDO...");
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 97, 95, 190); //5
+    ObjText_SetText(objText, "SER HUMANO NAO AUTORIZADO. POR[r] FAVOR FALE A SENHA DE[r] AUTORIZACAO...");
+    WaitPressKey();
+
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 191, 1, 285, 95); //3
+    ObjText_SetText(objText, "Espere! E uma emergencia! Onde[r] esta Petrius? Preciso dessa informacao[r] urgente!");
+    ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+	ObjText_SetText(objText, "ELE ESTA EM SUA BASE, PROXIMO AO[r] LOCAL ONDE O METEORO CAIU. ");
+	ObjText_SetFontColorTop(objText, 124,252,0); 
+    ObjText_SetFontColorBottom(objText, 124,252,0);
+	WaitPressKey();
+
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+	ObjText_SetText(objText, "FICA ATRAS DAS MONTANHAS[r] DEPOIS DESSE OCEANO");
+	ObjText_SetFontColorTop(objText, 124,252,0); 
+    ObjText_SetFontColorBottom(objText, 124,252,0);
+	WaitPressKey();
+
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95); //1
+	ObjText_SetText(objText, "Robo burro, pra que pede senha se ele[r] fala se a gente pedir?");
+	ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+
+	WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 97, 190, 190); //6
+    ObjText_SetText(objText, "OFENSA DETECTADA! E AINDA NAO[r] FALOU A SENHA...");
+    ObjText_SetFontColorTop(objText, 124,252,0); 
+    ObjText_SetFontColorBottom(objText, 124,252,0);
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 97, 190, 190); //6
+    ObjText_SetText(objText, "INICIANDO PROTOCOLE DE ATAQUE.[r] USANDO ARMAMENTO ESMERALDA");
+    ObjText_SetFontColorTop(objText, 124,252,0); 
+    ObjText_SetFontColorBottom(objText, 124,252,0);
+    WaitPressKey();
+
+
+    Obj_Delete(glenrynimgObj);
+    Obj_Delete(objText);
+    Obj_Delete(bossImgObj);
+    Obj_Delete(objTextBack);
+
+    SetForbidPlayerShot(false);
+	SetForbidPlayerSpell(false);
+	
+}
+
+function WaitPressKey(){ //Manual move. Sparen.
+   
+    
+    loop{
+     
+        if(GetVirtualKeyState(VK_OK) != KEY_FREE){
+        	loop(20){yield;}
+        	break;
+        }
+        yield;
+    }
+    
+}

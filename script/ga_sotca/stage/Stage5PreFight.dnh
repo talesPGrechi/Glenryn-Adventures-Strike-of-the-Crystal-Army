@@ -1,0 +1,102 @@
+#TouhouDanmakufu[Single]
+#ScriptVersion[3]
+#Title["Stage 5 Event Dialog"]
+#Text["Stage 5 Event Dialog"]
+#System["./../system/System.txt"]
+
+
+
+#include"./Stage5Event.dnh"
+
+
+let objEnemy;
+@Initialize
+{
+	SetAutoDeleteObject(true);
+	objEnemy = ObjEnemy_Create(OBJ_ENEMY_BOSS);
+	ObjEnemy_Regist(objEnemy);
+	TWork;
+	TRender;
+
+	DeleteShotAll(TYPE_ALL, TYPE_ITEM);//出現と同時に敵弾を全て削除	
+}
+
+@MainLoop
+{
+	yield;
+}
+
+@Event
+{
+	alternative(GetEventType())
+	case(EV_REQUEST_LIFE)
+	{
+		SetScriptResult(0);//ライフを1500に設定
+	}
+	case(EV_REQUEST_TIMER)
+	{
+		SetScriptResult(0);//時間制限を60秒に設定
+	}
+}
+
+//----------------------------------------------------
+//敵動作
+//----------------------------------------------------
+task TWork
+{
+	
+	
+	let cx = GetStgFrameWidth() / 2; // metade x da tela
+	ObjMove_SetDestAtFrame(objEnemy, cx, 60, 60); //move o chefe para lá
+	loop(60){yield;}
+	Stage5Event(); // responsável pelo diálogo.
+	ObjEnemy_SetLife(objEnemy,-10 ); // automaticamente morto depois do diálogo.
+	TEnd; // task para fechar o script.
+
+}
+
+//----------------------------------------------------
+//描画タスク
+//----------------------------------------------------
+task TRender
+{
+	let imgPetrius = GetCurrentScriptDirectory~"../img/stg/bosses/petrius.png";
+	ObjPrim_SetTexture(objEnemy, imgPetrius);
+	let frame =0;
+	while(!Obj_IsDeleted(objEnemy))
+	{
+	
+		ObjSprite2D_SetDestCenter(objEnemy);
+
+		
+		if(frame==0){ObjSprite2D_SetSourceRect(objEnemy,0,1,32,48);}//1
+			
+		if(frame>=320){frame=0;}
+		ObjRender_SetScaleXYZ(objEnemy,1.5 ,1.5 ,0 );
+		ObjSprite2D_SetDestCenter(objEnemy);
+		frame++;
+		yield;
+	}
+
+}
+
+//----------------------------------------------------
+//終了待機タスク
+//----------------------------------------------------
+task TEnd
+{
+	while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0)
+	{
+		yield;
+	}
+
+	let ex = ObjMove_GetX(objEnemy);
+	let ey = ObjMove_GetY(objEnemy);
+	//TExplosionA(ex, ey, 10, 0.6);
+	DeleteShotAll(TYPE_ALL, TYPE_ITEM);//敵弾を全て削除	
+	Obj_Delete(objEnemy);
+
+	loop(30){yield;}
+
+	CloseScript(GetOwnScriptID());
+}

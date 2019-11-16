@@ -1,0 +1,245 @@
+#TouhouDanmakufu[Stage]
+#ScriptVersion[3]
+#Title["Stage 4"]
+#Text["Stage 4"]
+#Background["./bgStage4.dnh"]
+#System["./../system/System.txt"]
+
+#include"../SoundControl.dnh"
+#include "../FunctionsUtil.txt"
+
+#include "./stgenemy/CrystalSapphire.dnh"
+#include "./stgenemy/Spirit.dnh"
+#include "./stgenemy/Skull.dnh"
+#include"../system/Default_ShotConst.txt"
+#include"../system/Default_Effect.txt"
+
+
+let bgm = ObjSound_Create();
+ObjSound_Load(bgm, GetCurrentScriptDirectory() ~ "../bgm/musica4.ogg");
+playMusic(bgm);
+ObjSound_Play(bgm);
+
+@Initialize
+{
+	SetCommonData("stage",4 );
+	SetAutoDeleteObject(true);
+
+	TStage();
+	EndStage();
+}
+
+@Event{
+	alternative(GetEventType())
+	case(EV_PAUSE_ENTER){
+		ObjSound_Stop(bgm);
+	}
+	case(EV_PAUSE_LEAVE){
+		ObjSound_Play(bgm);	
+	}
+}
+
+@MainLoop
+{
+	yield;
+}
+
+@Finalize
+{
+}
+
+
+task TStage
+{
+	loop(6){yield;}
+	DrawStageTitle();
+	
+	// inimigos
+ascent(j in 1..GetCommonData("diff",2 )+1){
+	wait(60);
+	//SkullEnemy(100,100,100,90,0,0,0,0);
+	loop(10){
+		SpiritEnemy(GetStgFrameWidth()+15,50,100,180,1,1,1,0,j);
+		wait(rand(1,5 )*20);
+	}
+
+	waitForZeroEnemies();	
+
+	wait(60);
+
+
+
+	SpiritEnemy(GetStgFrameWidth()/2,-10,1500,90,2+j*0.2,2,2,0,j);
+
+	waitForZeroEnemies();
+
+	SpiritEnemy(GetStgFrameWidth()/2+20,-10,700+(j*33),90,1,4,3,0,j);
+	SpiritEnemy(GetStgFrameWidth()/2-20,-10,700+(j*33),90,1,3,3,0,j);
+
+	waitForZeroEnemies();
+	wait(90);
+	
+
+	loop(10 * j){
+		let type = truncate(rand(1,5));
+		alternative(type)
+		case(1){ // top to bottom
+			SkullEnemy(rand(10,GetStgFrameWidth()-10),-10,100,90,1,0,1,0);
+		}
+		case(2){ // bottom to top
+			SkullEnemy(rand(10,GetStgFrameWidth()-10),GetStgFrameHeight()+10,100,270,1,0,1,0);
+		}
+		case(3){ // left to right
+			SkullEnemy(-10,rand(10,GetStgFrameHeight()-10),100,0,1,0,1,0);
+		}
+		case(4){ //right to left
+			SkullEnemy(GetStgFrameWidth()+10,rand(10,GetStgFrameHeight()-10),100,180,1,0,1,0);
+		}
+		wait(20);
+	}
+	
+	
+
+	waitForZeroEnemies();
+
+	//SURVIVAL
+		SkullEnemy(GetStgFrameWidth()/2,-10,9999999,90,1,1,9,j);
+	
+
+	waitForZeroEnemies();
+	if(j ==1){
+		EnemyCrystalSapphire(GetStgFrameWidth()/2-100, -10, 90, 3, 700, 1, 2);
+	}
+	if(j ==2){
+		EnemyCrystalSapphire(GetStgFrameWidth()/2-100, -10, 90, 3, 700, 1, 2);
+		EnemyCrystalSapphire(GetStgFrameWidth()/2+100, -10, 90, 3, 700, 1, 2);
+	}
+	if(j ==3){
+		EnemyCrystalSapphire(GetStgFrameWidth()/2-100, -10, 90, 3, 700, 1, 2);
+		EnemyCrystalSapphire(GetStgFrameWidth()/2, -10, 90, 3, 700, 1, 2);
+		EnemyCrystalSapphire(GetStgFrameWidth()/2+100, -10, 90, 3, 700, 1, 2);
+	}		
+	
+
+	waitForZeroEnemies();
+	//loop(600){yield;}
+
+}
+
+	let dir = GetCurrentScriptDirectory();
+
+	//ボス再生
+	let path = dir ~ "MemphisPlural.dnh";
+	let idScript = LoadScriptInThread(path);
+	loop(60){yield;}//1秒くらいあれば、コンパイル完了すると思われる。
+	StartScript(idScript);
+
+	//敵ボスシーンが終了するまで待機
+	while(!IsCloseScript(idScript) && GetPlayerState() != STATE_END)
+	{
+		yield;
+	}
+
+	//～～～敵の出現やボスの出現を繰り返す。
+
+	loop(240){yield;}
+	SetCommonData("scoreStg4",GetScore() );
+    //ステージ終了
+	CloseStgScene();
+}
+
+task EndStage(){
+	loop{
+		if(GetPlayerState() == STATE_END){
+		wait(60);
+		CloseStgScene();
+	}
+		yield;
+	}
+	
+}
+function waitForZeroEnemies(){
+	let arrayOfEnemies = GetAllEnemyID;
+	while(length(arrayOfEnemies)>0){
+		loop(5){arrayOfEnemies = GetAllEnemyID;}
+
+		yield;
+	}
+	
+}
+
+function DrawStageTitle(){
+	let count =0;
+
+	let objStageTitle = ObjText_Create();
+	ObjText_SetText(objStageTitle, "STAGE 4 - MYSTIC MOUNTAIN");
+	ObjText_SetFontType(objStageTitle,"SF Intellivised" );
+	ObjText_SetFontSize(objStageTitle, 25);
+	ObjText_SetFontColorTop(objStageTitle, 197, 27, 26);
+	ObjText_SetFontColorBottom(objStageTitle, 31, 176, 31);
+	ObjText_SetFontBorderType(objStageTitle, BORDER_FULL);
+	ObjText_SetFontBorderColor(objStageTitle,255, 255, 255);
+	ObjText_SetFontBorderWidth(objStageTitle, 2);
+	Obj_SetRenderPriorityI(objStageTitle, 50);
+	ObjRender_SetX(objStageTitle, 30);
+	ObjRender_SetY(objStageTitle, 150);
+
+	let objSubTitle = ObjText_Create();
+	ObjText_SetText(objSubTitle, "Hideout of the witch");
+	ObjText_SetFontType(objSubTitle,"SF Intellivised" );
+	ObjText_SetFontSize(objSubTitle, 20);
+	//ObjText_SetFontBold(objTitleText, true);
+	ObjText_SetFontColorTop(objSubTitle, 197, 27, 26);
+	ObjText_SetFontColorBottom(objSubTitle, 31, 176, 31);
+	ObjText_SetFontBorderType(objSubTitle, BORDER_FULL);
+	ObjText_SetFontBorderColor(objSubTitle,255, 255, 255);
+	ObjText_SetFontBorderWidth(objSubTitle, 2);
+	Obj_SetRenderPriorityI(objSubTitle, 50);
+	ObjRender_SetX(objSubTitle, 160);
+	ObjRender_SetY(objSubTitle, 180);
+
+	while(count<255){
+		ObjRender_SetAlpha(objStageTitle, count);
+		ObjRender_SetAlpha(objSubTitle, count);
+		wait(5);
+		count+=20;
+	}
+	wait(80);
+	count =255;
+	while(count>0){
+		ObjRender_SetAlpha(objStageTitle, count);
+		ObjRender_SetAlpha(objSubTitle, count);
+		wait(5);
+		count-=30;
+	}
+	Obj_Delete(objSubTitle);
+	Obj_Delete(objStageTitle);
+}
+
+function playMusic(bgm){
+	let vol = GetAreaCommonData("Options","BGM",0 );
+	ObjSound_SetSoundDivision(bgm, SOUND_BGM);
+    ObjSound_SetRestartEnable(bgm, true);
+    ObjSound_SetLoopEnable(bgm, true);
+    //ObjSound_SetLoopTime(bgm, 3, 51);
+    ObjSound_SetVolumeRate(bgm, vol);
+    return bgm;
+}
+
+function NewTextObj(let x, let y,let txt){
+			let objText = ObjText_Create;
+	        ObjText_SetText(objText, txt);
+	        ObjText_SetFontSize(objText, 32); // tamanho da fonte
+	        ObjText_SetFontType(objText, "Comic Sans MS"); // nome da fonte
+	        ObjText_SetFontColorTop(objText, 0, 255, 0); // cor no topo das letras
+	        ObjText_SetFontColorBottom(objText, 0, 0, 0); // cor na parte de baixo das letras 
+	        ObjText_SetFontBorderType(objText, BORDER_FULL); // bordas no texto
+	        ObjText_SetFontBorderColor(objText, 96, 96, 96); // cor da borda
+	        ObjText_SetFontBorderWidth(objText, 1); // espessura da borda
+	        Obj_SetRenderPriority(objText, 0.95); // render priority ("camadas")
+	        ObjRender_SetPosition(objText, x, y, 0); // posição x,y,z
+	        ObjText_SetHorizontalAlignment(objText, ALIGNMENT_LEFT); // alinhamento
+	        ObjText_SetMaxWidth(objText, 480); // largura máxima antes da quebra de linha
+			//Obj_SetVisible(objText,true);
+		return objText;
+}

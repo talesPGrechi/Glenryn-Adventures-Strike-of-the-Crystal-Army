@@ -1,0 +1,17 @@
+function wait(n){
+	loop(n){yield;}
+}
+
+function getCenterX{
+	return GetStgFrameWidth()/2;
+}
+
+function getCenterY{
+	return GetStgFrameHeight()/2;
+}
+
+/*function GetAngleToPlayer(bossX,bossY){
+	 let dir = 0;
+	 dir = atan2(GetPlayerY-bossY,GetPlayerX-bossX);
+	return dir
+}*/

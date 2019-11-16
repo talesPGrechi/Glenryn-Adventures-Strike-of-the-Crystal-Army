@@ -1,0 +1,105 @@
+#TouhouDanmakufu[Single]
+#ScriptVersion[3]
+#Title["Stage Dialog"]
+#Text["teste"]
+#System["./../system/System.txt"]
+
+
+
+#include"./Stage1Event.dnh"
+
+
+let objEnemy;
+@Initialize
+{
+	SetAutoDeleteObject(true);
+	objEnemy = ObjEnemy_Create(OBJ_ENEMY_BOSS);
+	ObjEnemy_Regist(objEnemy);
+	TWork;
+	TRender;
+
+	DeleteShotAll(TYPE_ALL, TYPE_ITEM);//出現と同時に敵弾を全て削除	
+}
+
+@MainLoop
+{
+	yield;
+}
+
+@Event
+{
+	alternative(GetEventType())
+	case(EV_REQUEST_LIFE)
+	{
+		SetScriptResult(0);
+	}
+	case(EV_REQUEST_TIMER)
+	{
+		SetScriptResult(0);
+	}
+}
+
+//----------------------------------------------------
+//敵動作
+//----------------------------------------------------
+task TWork
+{
+	
+	
+	let cx = GetStgFrameWidth() / 2; // metade x da tela
+	ObjMove_SetDestAtFrame(objEnemy, cx, 60, 60); //move o chefe para lá
+	loop(60){yield;}
+	Stage1Event(); // responsável pelo diálogo.
+	ObjEnemy_SetLife(objEnemy,-10 ); // automaticamente morto depois do diálogo.
+	TEnd; // task para fechar o script.
+
+}
+
+//----------------------------------------------------
+//描画タスク
+//----------------------------------------------------
+task TRender
+{
+	let imgHelicopter = GetCurrentScriptDirectory~"../img/stg/bosses/Helicopter.png";
+	ObjPrim_SetTexture(objEnemy, imgHelicopter);
+	let frame =0;
+	while(!Obj_IsDeleted(objEnemy))
+	{
+	
+		ObjSprite2D_SetDestCenter(objEnemy);
+		let angle = ObjMove_GetAngle(objEnemy);
+		let speed = ObjMove_GetSpeed(objEnemy);
+		if(frame==0){ObjSprite2D_SetSourceRect(objEnemy, 0, 80, 252, 200);}
+		if(frame==8){ObjSprite2D_SetSourceRect(objEnemy, 252, 80, 504, 200);}
+		if(frame==16){ObjSprite2D_SetSourceRect(objEnemy, 504, 80, 752, 200);}
+		if(frame==24){ObjSprite2D_SetSourceRect(objEnemy, 752, 80, 1008, 200);}
+		if(frame==32){ObjSprite2D_SetSourceRect(objEnemy, 1008, 80, 1260, 200);}
+		if(frame==40){ObjSprite2D_SetSourceRect(objEnemy, 1260, 80, 1512, 200);}
+		if(frame>=50){frame=0;}
+		ObjSprite2D_SetDestCenter(objEnemy);
+		frame++;
+		yield;
+	}
+
+}
+
+//----------------------------------------------------
+//終了待機タスク
+//----------------------------------------------------
+task TEnd
+{
+	while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0)
+	{
+		yield;
+	}
+
+	let ex = ObjMove_GetX(objEnemy);
+	let ey = ObjMove_GetY(objEnemy);
+	//TExplosionA(ex, ey, 10, 0.6);
+	DeleteShotAll(TYPE_ALL, TYPE_ITEM);//敵弾を全て削除	
+	Obj_Delete(objEnemy);
+
+	loop(30){yield;}
+
+	CloseScript(GetOwnScriptID());
+}

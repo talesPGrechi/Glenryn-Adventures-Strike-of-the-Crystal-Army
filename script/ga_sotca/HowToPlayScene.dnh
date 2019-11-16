@@ -1,0 +1,132 @@
+//----------------------------------------------------
+// How to Play
+//----------------------------------------------------
+task THowToPlayScene {
+	let bEndHTP = false;
+	
+	TBackgroundHowToPlay; //ativa task para o background
+	
+	task TBackgroundHowToPlay(){
+		let dir = GetCurrentScriptDirectory();
+		let pathTitle = dir ~ "img/menu/menu_others.png";
+
+		let objTitleImage = ObjPrim_Create(OBJ_SPRITE_2D); 
+		Obj_SetRenderPriorityI(objTitleImage, 20); 
+		ObjPrim_SetTexture(objTitleImage, pathTitle); 
+		ObjSprite2D_SetSourceRect(objTitleImage, 0, 0, 640, 480);
+		ObjSprite2D_SetDestRect(objTitleImage, 0, 0, 640, 480);
+		ObjRender_SetAlpha(objTitleImage,150 );
+		while(!bEndHTP){
+			if(!bEndHTP){
+				Obj_SetVisible(objTitleImage,true);
+			}else{
+				Obj_Delete(objTitleImage);
+			}
+			yield;
+		}
+		Obj_Delete(objTitleImage);
+	}
+	
+		// CREATING THE TEXTS
+	let objLabel = ObjText_Create();
+		ObjText_SetText(objLabel, "HOW TO PLAY");
+		ObjText_SetFontType(objLabel,"SF Intellivised" );
+		ObjText_SetFontSize(objLabel, 40);
+		ObjText_SetFontColorTop(objLabel, 197, 27, 26);
+		ObjText_SetFontColorBottom(objLabel, 31, 176, 31);
+		ObjText_SetFontBorderType(objLabel, BORDER_FULL);
+		ObjText_SetFontBorderColor(objLabel,255, 255, 255);
+		ObjText_SetFontBorderWidth(objLabel, 2);
+		Obj_SetRenderPriorityI(objLabel, 30);
+		ObjRender_SetX(objLabel, 200);
+		ObjRender_SetY(objLabel, 10);
+	
+
+	let objText1 = ObjText_Create;
+        ObjText_SetText(objText1, "* Use 'Z' to Attack the enemies!  ");
+        ObjText_SetFontSize(objText1, 30); // tamanho da fonte
+        ObjText_SetFontType(objText1, "Comic Sans MS"); // nome da fonte
+        ObjText_SetFontColorTop(objText1, 255, 0, 0); // cor no topo das letras
+        ObjText_SetFontColorBottom(objText1, 0, 0, 0); // cor na parte de baixo das letras 
+        ObjText_SetFontBorderType(objText1, BORDER_FULL); // bordas no texto
+        ObjText_SetFontBorderColor(objText1, 96, 96, 96); // cor da borda
+        ObjText_SetFontBorderWidth(objText1, 1); // espessura da borda
+        Obj_SetRenderPriority(objText1, 0.95); // render priority ("camadas")
+        ObjRender_SetPosition(objText1, 10, 70, 0); // posição x,y,z
+        ObjText_SetHorizontalAlignment(objText1, ALIGNMENT_LEFT); // alinhamento
+        ObjText_SetMaxWidth(objText1, 480); // largura máxima antes da quebra de linha
+		//Obj_SetVisible(objTeste,true);
+        
+    let objText2 = ObjText_Create;
+        ObjText_SetText(objText2, " * Use 'X' to use your Spell Attack!  ");
+        ObjText_SetFontSize(objText2, 30); 
+        ObjText_SetFontType(objText2, "Comic Sans MS");
+        ObjText_SetFontColorTop(objText2, 255, 0, 0); 
+        ObjText_SetFontColorBottom(objText2, 0, 0, 0);  
+        ObjText_SetFontBorderType(objText2, BORDER_FULL); 
+        ObjText_SetFontBorderColor(objText2, 96, 96, 96); 
+        ObjText_SetFontBorderWidth(objText2, 1); 
+        Obj_SetRenderPriority(objText2, 0.95); 
+        ObjRender_SetPosition(objText2, 10, 150, 0);
+        ObjText_SetHorizontalAlignment(objText2, ALIGNMENT_LEFT); 
+        ObjText_SetMaxWidth(objText2, 480); 
+	
+	let objText3 = ObjText_Create;
+        ObjText_SetText(objText3, " * Use 'Shift' to move Slowly ");
+        ObjText_SetFontSize(objText3, 30); 
+        ObjText_SetFontType(objText3, "Comic Sans MS");
+        ObjText_SetFontColorTop(objText3, 255, 0, 0); 
+        ObjText_SetFontColorBottom(objText3, 0, 0, 0);  
+        ObjText_SetFontBorderType(objText3, BORDER_FULL); 
+        ObjText_SetFontBorderColor(objText3, 96, 96, 96); 
+        ObjText_SetFontBorderWidth(objText3, 1); 
+        Obj_SetRenderPriority(objText3, 0.95); 
+        ObjRender_SetPosition(objText3, 10, 220, 0);
+        ObjText_SetHorizontalAlignment(objText3, ALIGNMENT_LEFT); 
+        ObjText_SetMaxWidth(objText3, 480); 
+
+    let objText4 = ObjText_Create;
+        ObjText_SetText(objText4, " * Get near the Bullets to gain Graze! [r]   Every 100 graze you gain a life!  ");
+        ObjText_SetFontSize(objText4, 30); 
+        ObjText_SetFontType(objText4, "Comic Sans MS");
+        ObjText_SetFontColorTop(objText4, 255, 0, 0); 
+        ObjText_SetFontColorBottom(objText4, 0, 0, 0);  
+        ObjText_SetFontBorderType(objText4, BORDER_FULL); 
+        ObjText_SetFontBorderColor(objText4, 96, 96, 96); 
+        ObjText_SetFontBorderWidth(objText4, 1); 
+        Obj_SetRenderPriority(objText4, 0.95); 
+        ObjRender_SetPosition(objText4, 10, 280, 0);
+        ObjText_SetHorizontalAlignment(objText4, ALIGNMENT_LEFT); 
+        ObjText_SetMaxWidth(objText4, 480); 
+
+    let objText5 = ObjText_Create;
+        ObjText_SetText(objText5, " * Destroy enemies and to gain Score![r] Some High Scores give you a Spell!   ");
+        ObjText_SetFontSize(objText5, 30); 
+        ObjText_SetFontType(objText5, "Comic Sans MS");
+        ObjText_SetFontColorTop(objText5, 255, 0, 0); 
+        ObjText_SetFontColorBottom(objText5, 0, 0, 0);  
+        ObjText_SetFontBorderType(objText5, BORDER_FULL); 
+        ObjText_SetFontBorderColor(objText5, 96, 96, 96); 
+        ObjText_SetFontBorderWidth(objText5, 1); 
+        Obj_SetRenderPriority(objText5, 0.95); 
+        ObjRender_SetPosition(objText5, 10, 380, 0);
+        ObjText_SetHorizontalAlignment(objText5, ALIGNMENT_LEFT); 
+        ObjText_SetMaxWidth(objText5, 480); 
+			
+	while(GetVirtualKeyState(VK_OK) != KEY_FREE) {yield;}
+	loop{
+		if (GetVirtualKeyState(VK_CANCEL) == KEY_PULL || GetVirtualKeyState(VK_OK) == KEY_PULL) {
+			Obj_Delete(objText1);
+			Obj_Delete(objText2);
+			Obj_Delete(objText3);
+			Obj_Delete(objText4);
+			Obj_Delete(objText5);
+			Obj_Delete(objLabel);
+			bEndHTP = true;
+            TTitleScene;
+            break;
+        }
+		yield;
+	}
+   
+}

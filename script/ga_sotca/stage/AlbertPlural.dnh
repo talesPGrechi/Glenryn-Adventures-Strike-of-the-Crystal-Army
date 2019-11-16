@@ -1,0 +1,48 @@
+#TouhouDanmakufu[Plural]
+#ScriptVersion[3]
+#Title["ALBERT BOSS FIGHT"]
+#Text["ALBERT BOSS FIGHT"]
+
+#System["./../system/System.txt"]
+
+@Initialize
+{
+	TPlural();
+}
+
+@MainLoop
+{
+	yield;
+}
+
+@Finalize
+{
+}
+
+
+task TPlural
+{
+	
+	let dir = GetCurrentScriptDirectory();
+
+	
+	let obj = ObjEnemyBossScene_Create();
+	ObjEnemyBossScene_Add(obj, 0, dir ~ "Stage2PreFight.txt");
+	ObjEnemyBossScene_Add(obj, 1, dir ~ "NSBoss2.dnh");
+	ObjEnemyBossScene_Add(obj, 1, dir ~ "SPBoss2.dnh");
+	ObjEnemyBossScene_Add(obj, 2, dir ~ "NS2Boss2.dnh");
+	ObjEnemyBossScene_LoadInThread(obj);
+	ObjEnemyBossScene_Regist(obj);
+
+	
+	while(!Obj_IsDeleted(obj))
+	{
+		yield;
+	}
+
+    
+	CloseScript(GetOwnScriptID());
+}
+
+
+

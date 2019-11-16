@@ -1,0 +1,170 @@
+task Robo6(x, y,lifeE, angleE, speedE, mov, attack){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, lifeE);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+	TDrawLoopRobo6(objEnemy);
+	TMainLoop;
+	TMovement;
+	//TAttack;
+	TFinalize;
+	
+	}
+	
+
+    
+
+    task TMainLoop {
+		let count =1;
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	//	ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30); 
+     //   ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30);
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          isOut = true;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+       
+		count++;
+	yield;
+		}
+		
+      }
+    
+	task TMovement{
+		let count =1;
+		alternative(mov)
+		case(1){
+			if(count <300){
+			wait(60);
+			ObjMove_SetSpeed(objEnemy, 0);
+			wait(60);
+			TAttack;
+			wait(120);
+			ObjMove_SetSpeed(objEnemy, speedE);
+			}
+		}
+		case(2){
+			if(count <300){
+			wait(120);
+			ObjMove_SetSpeed(objEnemy, 0);
+			TAttack;
+			wait(120);
+			ObjMove_SetSpeed(objEnemy, speedE);
+			}
+		}
+		case(3){
+			wait(120);
+
+			ObjMove_SetSpeed(objEnemy,3 );
+			ObjMove_SetAngularVelocity(objEnemy,-2 );
+			TAttack;
+		}
+		case(4){
+			wait(120);
+			ObjMove_SetSpeed(objEnemy,3 );
+			ObjMove_SetAngularVelocity(objEnemy,2 );
+			TAttack;
+			
+		}
+		count++;
+	}
+	
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+
+		alternative(attack)
+		case(1){
+			let a=0;
+			loop(2){
+				PlaySFX(enemyAttack1);
+				loop(12){
+					CreateShotA1( ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy),1,a,225,1);
+					wait(5);
+					a+=360/12;
+				}
+				wait(20);
+			}
+		}
+		case(2){
+			auxShot(objEnemy);
+			let baseAng =0;
+			
+			loop{
+				PlaySFX(enemyAttack1);
+				let angShot = baseAng;
+				loop(4){
+					if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+					CreateShotOA1(objEnemy,2.5,angShot ,162 ,0 );
+					angShot+=360/4;
+				}
+
+				wait(10);
+				baseAng+=45;
+			yield;
+			}
+		}
+		
+	}
+    
+
+    task TFinalize {
+         while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		
+		Obj_Delete(objEnemy);
+		if(!isOut){
+			PlaySFX(damage);
+			AddScore(100 * GetCommonData("diff",1 ));
+		}else{AddScore(1);}
+    }
+}
+task TDrawLoopRobo6(objEnemy) { 
+		
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/RoboChopper.png";
+		let frame =1;
+		
+		ObjPrim_SetTexture(objEnemy, img );
+		ObjSprite2D_SetSourceRect(objEnemy, 384,0,448,64);
+		ObjSprite2D_SetDestCenter(objEnemy);
+		
+		
+		
+		while(!Obj_IsDeleted(objEnemy)){
+			// HITBOXES 
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25);
+			
+			//animação 
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy, 0,256,64,320);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy, 64,256,128,320);}
+
+			frame++;
+			if(frame >=24){frame=0;}
+			yield;
+		}
+		
+    }
+task auxShot(objEnemy){
+	loop{
+		wait(rand(30,120 ));	
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+		CreateShotOA1(objEnemy, 1, GetAngleToPlayer(objEnemy), 15,0 );
+		
+	yield;
+	}
+	
+
+}

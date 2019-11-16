@@ -1,0 +1,155 @@
+task EnemyCrystalRuby(x, y, angleE, speedE,life,movement, attack, counter,diff){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, life);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+
+	TDrawLoopRuby(objEnemy);
+	TMainLoop;
+	//TAttack;
+	TFinalize;
+	}
+	
+
+   task TDrawLoopRuby(objEnemy) {
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/ruby.png"; //imagem dos sprites
+		let frame = 1; //contador
+		ObjPrim_SetTexture(objEnemy, img ); // setando a textura no objeto do inimigo
+		ObjRender_SetScaleXYZ(objEnemy, 1.5, 1.5, 1);
+		ObjSprite2D_SetSourceRect(objEnemy,0, 0, 32, 32); //"recorte" inicial
+		ObjSprite2D_SetDestCenter(objEnemy);
+		ObjRender_SetBlendType(objEnemy,BLEND_ALPHA );
+		while(!Obj_IsDeleted(objEnemy)){ // enquanto estiver vivo...
+			//hitboxes
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 15); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25);
+	
+			//animação
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy,0, 0, 32, 32);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy,32, 0, 64, 32);}
+			if(frame == 24){ObjSprite2D_SetSourceRect(objEnemy,64, 0, 96, 32);}
+			if(frame == 32){ObjSprite2D_SetSourceRect(objEnemy,96, 0, 128, 32);}
+			if(frame == 40){ObjSprite2D_SetSourceRect(objEnemy,128, 0, 160, 32);}
+			if(frame == 48){ObjSprite2D_SetSourceRect(objEnemy,160, 0, 192, 32);}
+			if(frame == 56){ObjSprite2D_SetSourceRect(objEnemy,192, 0, 224, 32);}
+			if(frame == 64){ObjSprite2D_SetSourceRect(objEnemy,224, 0, 256, 32);}
+			
+			frame++;
+           
+            if(frame>=64){frame = 0;} //loop
+			
+			yield;
+		}
+    }
+
+    task TMainLoop {
+		let count =1;
+		TMovement;
+
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	//	ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30); 
+     //   ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30);
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          let isOut = false;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+      
+		count++;
+	yield;
+		}
+		
+      }
+    
+	
+	task TMovement{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		
+		alternative(movement)
+		case(1){
+			let count =1;
+			while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) >= 0){
+				if(count == counter){
+					ObjMove_SetSpeed(objEnemy,0 );
+					TAttack;
+					wait(60);
+					ObjMove_SetSpeed(objEnemy,speedE );
+				}
+				count++;
+			yield;
+			}
+			
+		}
+		
+	}
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		
+		alternative(attack)
+		case(1){
+			//GetAngleToPlayer(objShot);
+			
+			let objShot;
+			loop(1+diff){
+				PlaySFX(enemyAttack6);
+				ascent(ang in -1..2){
+					if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+					objShot =CreateShotA1(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy),1.5,90+ang*40,25,0 );
+					alterAngle(objShot);
+
+				}
+		
+				wait(20);
+			}
+			
+			
+		}
+		case(2){
+			
+			let objShot;
+			loop(3){
+				PlaySFX(enemyAttack6);
+				ascent(ang in -1..2){
+					if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+					objShot =CreateShotA1(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy),1.5,0+ang*40,25,0 );
+					alterAngle(objShot);
+
+				}
+		
+				wait(20);
+			}
+			
+			
+		}
+		
+		task alterAngle(objParent){
+			wait(120);
+			let a = GetAngleToPlayer(objParent);
+			ObjMove_AddPatternA2(objParent,1,2.3,a,NO_CHANGE,0,4);
+		}
+	}
+    
+
+        task TFinalize {
+        while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		
+		Obj_Delete(objEnemy);
+		if(!isOut){
+			PlaySFX(damageCrystal);
+			AddScore(100 * GetCommonData("diff",1 ));
+		}else{AddScore(1);}
+    }
+}

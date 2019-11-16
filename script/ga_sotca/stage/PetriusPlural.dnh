@@ -1,0 +1,49 @@
+#TouhouDanmakufu[Plural]
+#ScriptVersion[3]
+#Title["PETRIUS BOSS FIGHT"]
+#Text["PETRIUS BOSS FIGHT"]
+#System["./../system/System.txt"]
+
+@Initialize
+{
+	TPlural();
+}
+
+@MainLoop
+{
+	yield;
+}
+
+@Finalize
+{
+}
+
+
+task TPlural
+{
+	
+	let dir = GetCurrentScriptDirectory();
+
+	//通常はボスシーンを1つだけ作成します。
+	let obj = ObjEnemyBossScene_Create();
+	ObjEnemyBossScene_Add(obj, 0, dir ~ "Stage5PreFight.dnh");
+	ObjEnemyBossScene_Add(obj, 1, dir ~ "NSBoss5.dnh");
+	ObjEnemyBossScene_Add(obj, 1, dir ~ "SPBoss5.dnh");
+	ObjEnemyBossScene_Add(obj, 2, dir ~ "NS2Boss5.dnh");
+	ObjEnemyBossScene_Add(obj, 2, dir ~ "SP2Boss5.dnh");
+	ObjEnemyBossScene_Add(obj, 3, dir ~ "SP3Boss5.dnh");
+	ObjEnemyBossScene_LoadInThread(obj);
+	ObjEnemyBossScene_Regist(obj);
+
+	//敵ボスシーンが終了するまで待機
+	while(!Obj_IsDeleted(obj))
+	{
+		yield;
+	}
+
+    //スクリプト終了
+	CloseScript(GetOwnScriptID());
+}
+
+
+

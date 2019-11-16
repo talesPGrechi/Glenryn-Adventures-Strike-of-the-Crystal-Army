@@ -1,0 +1,92 @@
+
+let bSpell = false;
+let current = GetCurrentScriptDirectory();
+@Initialize
+{
+	SetAutoDeleteObject(true);
+	SetCameraFocusX(0);
+	SetCameraFocusY(0);
+	SetCameraFocusZ(0);
+	SetCameraRadius(550);
+	SetCameraElevationAngle(35);
+	SetCameraAzimuthAngle(90);
+
+	SetFogParam(0, 1000, 32, 32, 32);
+
+	TScrollBackground;
+
+}
+
+@MainLoop
+{
+
+	let objScene = GetEnemyBossSceneObjectID();
+	if(objScene != ID_INVALID && ObjEnemyBossScene_GetInfo(objScene, INFO_IS_SPELL))
+	{
+		bSpell = true;
+	}
+	else
+	{
+		bSpell = false;
+	}
+	
+
+	yield;
+}
+
+
+
+
+
+
+task TScrollBackground {
+    let path1 = GetCurrentScriptDirectory() ~ "../img/stg/bg/stars.jpg";
+    //let path1 = GetCurrentScriptDirectory() ~ "../img/stg/bg/bg2.png";
+    let path2 = GetCurrentScriptDirectory() ~ "../img/stg/bg/spell.png";
+
+    let obj1 = ObjPrim_Create(OBJ_SPRITE_2D);
+    ObjRender_SetBlendType(obj1, BLEND_ALPHA);
+    Obj_SetRenderPriority(obj1, 0.21);
+    ObjPrim_SetTexture(obj1, path1);
+    ObjSprite2D_SetSourceRect(obj1, 0, 0, 512, 512);
+    ObjSprite2D_SetDestRect(obj1, -256, -256, 256, 256);
+    ObjRender_SetPosition(obj1, 384/2, 448/2, 1);
+
+    let obj2 = ObjPrim_Create(OBJ_SPRITE_2D);
+    ObjRender_SetBlendType(obj2, BLEND_ALPHA);
+    Obj_SetRenderPriority(obj2, 0.20);
+    ObjPrim_SetTexture(obj2, path2);
+    ObjSprite2D_SetSourceRect(obj2, 0, 0, 512, 512);
+    ObjSprite2D_SetDestRect(obj2, -256, -256, 256, 256);
+    ObjRender_SetPosition(obj2, 384/2, 448/2, 1);
+
+
+    let frame = 0;
+    let alpha = 0;
+    loop {
+        if (bSpell) { //Transition from stage background     if (bSpell)
+            
+
+            Obj_SetVisible(obj1,false );
+            Obj_SetVisible(obj2,true );
+            
+            if(alpha<100){
+            ObjRender_SetAlpha(obj2,alpha );
+            alpha++;    
+            }
+            ObjSprite2D_SetSourceRect(obj2, 0 +frame%512,0 -frame % 512 ,512 +frame%512 ,512 - frame%512 );
+           
+            frame++;
+        } else {
+            alpha = 0; //If no longer spell
+            Obj_SetVisible(obj2,false );
+            Obj_SetVisible(obj1,true );
+
+            ObjSprite2D_SetSourceRect(obj1, 0,0 + -frame % 512 ,512 ,512 + -frame%512 );
+            frame++;
+        } 
+        yield;
+    }
+}
+
+

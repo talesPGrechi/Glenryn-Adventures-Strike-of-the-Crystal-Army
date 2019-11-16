@@ -1,0 +1,113 @@
+task Robo2(x, y, angleE, speedE, side){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, 200);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+	TDrawLoopRobo2(objEnemy);
+	TMainLoop;
+	//TAttack;
+	TFinalize;
+	}
+	
+
+    
+
+    task TMainLoop {
+		let count =1;
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	//	ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30); 
+     //   ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30);
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          isOut = true;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+        //movimento
+		
+		if(count == 90){
+			ObjMove_SetSpeed(objEnemy, 0);
+			TAttack;
+			loop(30){yield};
+			TAttack;
+			loop(30){yield};
+			TAttack;
+			loop(60){yield};
+			ObjMove_SetSpeed(objEnemy, speedE);
+			if(side>0){
+				ObjMove_SetAngle(objEnemy, 0);
+			}else{
+				ObjMove_SetAngle(objEnemy, 180);
+			}
+			
+		}
+
+		
+		count++;
+	yield;
+		}
+		
+      }
+    
+	
+	
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		PlaySFX(enemyAttack1);
+		let a=0;
+		loop(12){
+			CreateShotA1( ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy),1,a,50,1);
+			a+=360/12;
+		}
+	}
+    
+
+    task TFinalize {
+        while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		
+		Obj_Delete(objEnemy);
+		if(!isOut){
+			AddScore(100 * GetCommonData("diff",1 ));
+			PlaySFX(damage);
+		}else{AddScore(1);}
+    }
+}
+task TDrawLoopRobo2(objEnemy) {
+		
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/RoboChopper.png";
+		let frame =1;
+		
+		ObjPrim_SetTexture(objEnemy, img );
+		ObjSprite2D_SetSourceRect(objEnemy, 384,0,448,64);
+		ObjSprite2D_SetDestCenter(objEnemy);
+		
+		
+		
+		while(!Obj_IsDeleted(objEnemy)){
+			// HITBOXES 
+			
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25);
+			
+			//animação
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy, 384,0,448,64);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy, 448,0,512,64);}
+
+			frame++;
+			if(frame >=24){frame=0;}
+			yield;
+		}
+		
+    }

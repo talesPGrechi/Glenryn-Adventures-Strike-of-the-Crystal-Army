@@ -1,0 +1,91 @@
+task S2E2(x, y, angleE, speedE){
+	
+    let objEnemy;
+	let count =0;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, 100);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+	TDrawLoop;
+	TMainLoop;
+	TAttack;
+	TFinalize;
+	}
+	
+
+    task TDrawLoop {
+		
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/enemy4.png";
+		let obj = ObjPrim_Create(OBJ_SPRITE_2D);
+		
+		ObjPrim_SetTexture(obj, img );
+		ObjRender_SetScaleXYZ(obj, 0.5, 0.5, 1);
+		ObjSprite2D_SetSourceRect(obj, 0,0,64,64);
+		ObjSprite2D_SetDestCenter(obj);
+		ObjRender_SetBlendType(obj, BLEND_ALPHA);
+		ObjRender_SetAlpha(obj, 255);
+		
+		
+		while(!Obj_IsDeleted(objEnemy)){
+			// HITBOXES 
+			ObjRender_SetPosition(obj,ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy),1);
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25);
+			
+			//animação
+			ObjRender_SetAngleZ(objEnemy,count );
+			
+			count++;
+			yield;
+		}
+		Obj_Delete(obj);
+    }
+
+    task TMainLoop {
+		let count =1;
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+        //movimento
+        if(count %5 ==0){TMovement;}
+		if(count %15 ==0){TAttack;}
+		
+		
+		count++;
+	yield;
+		}
+		
+      }
+    
+	
+	task TMovement{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		ObjMove_AddPatternA1(objEnemy,1,NO_CHANGE,ObjMove_GetAngle(objEnemy)-1.5 );
+	}
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		
+		let objShot =CreateShotA1(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy),1,270,50,0 );
+		 
+		ObjMove_AddPatternA2(objShot,60,NO_CHANGE,90,NO_CHANGE,0,4);
+		
+	}
+    
+
+    task TFinalize {
+        while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+        PlaySFX(damageCrystal);
+		Obj_Delete(objEnemy);
+    }
+}

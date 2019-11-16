@@ -1,0 +1,154 @@
+function Stage4Event(){
+    //cor do texto glenryn
+    //ObjText_SetFontColorTop(objText ,0,255,255);
+    //ObjText_SetFontColorBottom(objText ,0,255,255);
+    //cor do texto Memphis
+    //ObjText_SetFontColorTop(objText, 30,144,255); 
+    //ObjText_SetFontColorBottom(objText, 30,144,255);
+
+
+    //faces grenryn
+
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95); //1
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 191, 1, 285, 95); //3
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 1, 380, 95); //4
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 97, 95, 190); //5
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 97, 190, 190); //6
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 190,97 ,285 ,190 ); //7
+    //ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 97, 380, 190); //8
+
+
+
+// espera o ataque especial do jogador acabar
+	while(IsPlayerSpellActive()){yield;} 
+//impede o jogador de atacar
+	SetForbidPlayerShot(true);
+	SetForbidPlayerSpell(true);
+	//background para o texto
+    let bkgdpath = GetCurrentScriptDirectory() ~ "../img/event/txtback.png";
+    let objTextBack = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(objTextBack, 80);
+    ObjPrim_SetTexture(objTextBack, bkgdpath);
+    ObjSprite2D_SetSourceRect(objTextBack, 0, 0, 352, 70);
+    ObjSprite2D_SetDestRect(objTextBack, 0, 0, 352, 70);
+    ObjRender_SetX(objTextBack, 18);
+    ObjRender_SetY(objTextBack, 320);
+    ObjRender_SetAlpha(objTextBack, 160);
+   
+
+    //imagem do jogador
+    let glenrynImg = GetCurrentScriptDirectory() ~ "../img/event/glenrynFaceSet.png";
+    let glenrynimgObj = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(glenrynimgObj, 80);
+    ObjPrim_SetTexture(glenrynimgObj, glenrynImg);
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95);
+    ObjSprite2D_SetDestCenter(glenrynimgObj);
+    ObjRender_SetScaleXYZ(glenrynimgObj,1,1 ,1 );
+    ObjRender_SetX(glenrynimgObj, 100);
+    ObjRender_SetY(glenrynimgObj, 200);
+
+    //imagem do inimigo
+    let bossImg = GetCurrentScriptDirectory() ~ "../img/event/memphis.png";
+    let bossImgObj = ObjPrim_Create(OBJ_SPRITE_2D);
+    Obj_SetRenderPriorityI(bossImgObj, 80);
+    ObjPrim_SetTexture(bossImgObj, bossImg);
+    ObjSprite2D_SetSourceRect(bossImgObj, 0, 0, 128, 128);
+    ObjSprite2D_SetDestCenter(bossImgObj);
+    ObjRender_SetScaleXYZ(bossImgObj,0.8 ,0.8 ,1 );
+    ObjRender_SetX(bossImgObj, 280);
+    ObjRender_SetY(bossImgObj, 200);
+
+    //texto
+    let objText = ObjText_Create();
+    ObjText_SetFontSize(objText, 20);
+    ObjText_SetFontType(objText, " Klein Text Book");
+    Obj_SetRenderPriorityI(objText, 81);
+    ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+    ObjText_SetFontBorderType(objText, BORDER_FULL);
+    ObjText_SetFontBorderColor(objText, 0, 0, 0);
+    ObjText_SetFontBorderWidth(objText, 1);
+    ObjRender_SetX(objText, 54);
+    ObjRender_SetY(objText, 340);
+    
+    //dialog
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95); //1
+    ObjText_SetText(objText, "Ola senhora. Olha, acho melhor tomar[r] cuidado, aparentemente tem umas[r] caveiras e uns bichos estranhos por aqui.");
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 285, 1, 380, 95); //4
+    ObjText_SetText(objText, "Nao se preocupe, fui eu que invoquei elas[r] Nao me chame de senhora, alias.[r] Meu nome e Memphis.");
+    ObjText_SetFontColorTop(objText, 30,144,255); 
+    ObjText_SetFontColorBottom(objText, 30,144,255);
+    WaitPressKey();
+
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 191, 1, 285, 95); //
+    ObjText_SetText(objText, "Entao foi voce que mandou aqueles[r] fantasma pra cima de mim. O que diabos[r] voce quer?");
+    ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 0, 1, 95, 95); //1
+	ObjText_SetText(objText, "Digamos que fui contratado para eliminar[r] um certo mago que ja causou muitos [r] problemas a um cara e seu exercito ");
+	ObjText_SetFontColorTop(objText, 30,144,255); 
+    ObjText_SetFontColorBottom(objText, 30,144,255);
+	WaitPressKey();
+
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 191, 1, 285, 95); //3
+	ObjText_SetText(objText, "O que!?!? Nao me diga que Petrius pagou[r] voce para acabar comigo... Mas Que[r] atitude desumana!");
+	ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+	WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+    ObjText_SetText(objText, "Nao sei quanto ele te deu, mas pago[r] o dobro se me ajudar a lutar contra ele!");
+    ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 190,97 ,285 ,190 ); //7 
+	ObjText_SetText(objText, "Voce nem tem dinheiro");
+	ObjText_SetFontColorTop(objText, 30,144,255); 
+    ObjText_SetFontColorBottom(objText, 30,144,255);
+
+	WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2
+    ObjText_SetText(objText, "Nao, mas vou ter quando derrotar ele[r] e ser muito famoso por isso! ");
+    ObjText_SetFontColorTop(objText ,0,255,255);
+    ObjText_SetFontColorBottom(objText ,0,255,255);
+    WaitPressKey();
+
+    ObjSprite2D_SetSourceRect(glenrynimgObj, 96, 1, 190, 95); //2 
+    ObjText_SetText(objText, "Muito engracado...");
+    ObjText_SetFontColorTop(objText, 30,144,255); 
+    ObjText_SetFontColorBottom(objText, 30,144,255);
+    WaitPressKey();
+
+
+    Obj_Delete(glenrynimgObj);
+    Obj_Delete(objText);
+    Obj_Delete(bossImgObj);
+    Obj_Delete(objTextBack);
+
+    SetForbidPlayerShot(false);
+	SetForbidPlayerSpell(false);
+	
+}
+
+function WaitPressKey(){ //Manual move. Sparen.
+   
+    
+    loop{
+     
+        if(GetVirtualKeyState(VK_OK) != KEY_FREE){
+        	loop(20){yield;}
+        	break;
+        }
+        yield;
+    }
+    
+}

@@ -1,0 +1,920 @@
+#TouhouDanmakufu[Package]
+#Title["Strike of the Crystal Army"]
+#Text["Made by Tales Pereira Grechi"]
+#Player["./player/GlenrynA.txt","./player/GlenrynB.txt"]
+
+
+#include "./PkgBackground.dnh"
+#include "./EventConst.txt"
+#include "./InitConfig.dnh"
+
+#include "./SoundControl.dnh"
+
+let dir = GetCurrentScriptDirectory();
+	let file = ObjFile_Create(OBJ_FILE_TEXT );
+	let path = dir ~ "/Data/rank.txt";
+	//ObjFile_OpenNW(file, pa);
+
+
+function fff(let mx, let my, let text)
+		{
+			let obj = ObjText_Create();
+			ObjText_SetText(obj, text);
+			ObjText_SetFontSize(obj, 20);
+			ObjText_SetFontType(obj, " Klein Text Book");
+			ObjText_SetFontBold(obj, true);
+			ObjText_SetFontColorTop(obj, 128, 128, 255);
+			ObjText_SetFontColorBottom(obj, 64, 64, 255);
+			ObjText_SetFontBorderType(obj, BORDER_FULL);
+			ObjText_SetFontBorderColor(obj,255, 255, 255);
+			ObjText_SetFontBorderWidth(obj, 2);
+			Obj_SetRenderPriorityI(obj, 30);
+			ObjRender_SetX(obj, mx);
+			ObjRender_SetY(obj, my);
+			return obj;
+		}
+@Initialize
+{
+	
+	InitConfig();
+	TTitleScene();
+
+}
+
+@Event{
+    alternative(GetEventType)
+    case(EV_MAKE_BACKGROUND_TRUE) {
+       Obj_SetVisible(mainbg,true );
+       Obj_SetVisible(objTitleText,true );
+    }
+    case(EV_MAKE_BACKGROUND_FALSE) {
+        Obj_SetVisible(mainbg,false );
+        Obj_SetVisible(objTitleText,false );
+    }
+}
+
+
+
+@MainLoop
+{
+ yield;
+}
+
+task TTitleScene
+{   
+	
+/*	
+	
+	let file = ObjFile_Create(OBJ_FILE_TEXT );
+	
+	
+	ObjFileT_AddLine(file,"100");
+	ObjFileT_AddLine(file,"1000");
+	ObjFileT_AddLine(file,"10000");
+	//fff(100,100,aa[0]~"t");
+	//ObjFileT_AddLine(file,"2");
+	//ObjFileT_ClearLine(file);// clear all lines not yet stored
+	ObjFile_Store(file);
+	
+let nLine = ObjFileT_GetLineCount(file);
+fff(200,200,nLine);
+ascent(i in 1..nLine+1){
+		SetCommonData(i,ObjFileT_GetLineText(file,i));
+		NewTextObj(300,i*50,GetCommonData(i,"aaa"));
+		loop(60){yield;}
+	}
+*/
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	let bEndTitleScene = false;
+	TMakeBackground;
+	TMakeTitle; // in PkgBackground
+	NotifyEventAll(EV_MAKE_BACKGROUND_TRUE, 0 );
+	//タイトルシーン終了フラグ
+	
+
+	//メニュー
+	let INDEX_START = 0;
+	let INDEX_HOWTOPLAY = 1;
+	let INDEX_STORY = 2;
+	let INDEX_REPLAY = 3;
+	let INDEX_OPTION = 4;
+	let INDEX_CREDITS = 5;
+	let INDEX_QUIT = 6;
+
+	let selectIndex = 0;
+	task TMenuItem(let index, let mx, let my, let text)
+	{
+		function CreateTextObject(let mx, let my, let text)
+		{
+			let obj = ObjText_Create();
+			ObjText_SetText(obj, text);
+			ObjText_SetFontSize(obj, 20);
+			ObjText_SetFontType(obj, " Klein Text Book");
+			ObjText_SetFontBold(obj, true);
+			ObjText_SetFontColorTop(obj, 128, 128, 255);
+			ObjText_SetFontColorBottom(obj, 64, 64, 255);
+			ObjText_SetFontBorderType(obj, BORDER_FULL);
+			ObjText_SetFontBorderColor(obj,255, 255, 255);
+			ObjText_SetFontBorderWidth(obj, 2);
+			Obj_SetRenderPriorityI(obj, 30);
+			ObjRender_SetX(obj, mx);
+			ObjRender_SetY(obj, my);
+			return obj;
+		}
+
+		let objText = CreateTextObject(mx, my, text);
+		let objSelect = CreateTextObject(mx, my, text);
+		ObjRender_SetBlendType(objSelect, BLEND_ADD_RGB);
+		while(!bEndTitleScene)
+		{
+			Obj_SetVisible(objSelect, index == selectIndex);
+			yield;
+		}
+		Obj_Delete(objText);
+		Obj_Delete(objSelect);
+	}
+
+	let mx = 500;
+	let my = 190;
+	let texts = ["Start Game", "How to Play", "The Story", "Replay","Options","Credits", "Quit"];
+	var countMenu = length(texts);
+	ascent( iText in 0 .. countMenu)
+	{
+		TMenuItem(iText, mx, my, texts[iText]);
+		my += 32;
+		mx -= 10;
+	}
+
+	//キー状態がリセットされるまで待機
+	while(GetVirtualKeyState(VK_OK) != KEY_FREE){yield;}
+
+	//メニュー選択処理
+	let frameKeyHold = 0;//キー押しっぱなしフレーム数
+	loop
+	{
+		//決定
+		if(GetVirtualKeyState(VK_OK) == KEY_PUSH)
+		{
+			if(selectIndex == INDEX_START)
+			{
+				PlaySFX(select);
+				let isDiffSelected = 0;
+				let isPlayerSelected = 0;
+				NotifyEventAll(EV_MAKE_BACKGROUND_FALSE, 0 );
+				bEndTitleScene = true;
+				isDiffSelected = TdiffSelect(); // return a number (1 or -1)
+				while(isDiffSelected ==0){yield;}
+				if(isDiffSelected == -1){TTitleScene();}
+				else{ 
+					isPlayerSelected = TPlayerSelect;
+					while(isPlayerSelected == 0){yield;}
+				if(isPlayerSelected == -1){TTitleScene();}	
+				else{
+					TStageScene("");
+				}
+				
+				}
+			}
+			else if(selectIndex == INDEX_HOWTOPLAY)
+			{
+				PlaySFX(select);
+				NotifyEventAll(EV_MAKE_BACKGROUND_FALSE,0);
+				bEndTitleScene = true;
+				THowToPlayScene;	
+				//retirar imagens do titulo e menus
+				//apresentar um "how to play"
+				
+			}
+			else if(selectIndex == INDEX_STORY)
+			{
+				PlaySFX(select);
+				NotifyEventAll(EV_MAKE_BACKGROUND_FALSE,0);
+				bEndTitleScene = true;
+				TStoryScene;
+				//retirar imagens do titulo e menus
+				//apresentar história do jogo
+			}
+			else if(selectIndex == INDEX_REPLAY)
+			{
+				PlaySFX(select);
+
+				NotifyEventAll(EV_MAKE_BACKGROUND_FALSE,0);
+		//		Obj_Delete(objTitleImage);
+		//		Obj_Delete(objTitleText);
+				TReplaySelectScene();
+			}
+			else if(selectIndex == INDEX_OPTION)
+			{
+				PlaySFX(select);
+				NotifyEventAll(EV_MAKE_BACKGROUND_FALSE,0);
+				bEndTitleScene = true;
+				TOptionsScene();
+				
+			}
+			else if(selectIndex == INDEX_CREDITS)
+			{
+				NotifyEventAll(EV_MAKE_BACKGROUND_FALSE,0);
+				bEndTitleScene = true;
+				PlaySFX(select);
+				TCreditsScene();
+				yield;
+			}
+			else if(selectIndex == INDEX_QUIT)
+			{
+				ClosePackage();
+			}
+			break;
+		}
+
+		//カーソル移動
+		if(GetVirtualKeyState(VK_UP) == KEY_PUSH)
+		{
+			selectIndex--;
+		}
+		else if(GetVirtualKeyState(VK_DOWN) == KEY_PUSH)
+		{
+			selectIndex++;
+		}
+		
+
+		if(selectIndex < 0) 
+		{
+			selectIndex = countMenu - 1;
+		}
+		else
+		{
+			selectIndex %= countMenu;
+		}
+
+		yield;
+	}
+	
+	
+	
+		bEndTitleScene = true;
+		//Obj_Delete(objTitleImage);
+		//Obj_Delete(objTitleText);
+		
+	
+	
+}
+
+//----------------------------------------------------
+// Dificulty selection
+//----------------------------------------------------
+function TdiffSelect{	
+	//returns 1 if the difficulty is selected
+	//returns -1 if not
+
+	NotifyEventAll(EV_MAKE_BACKGROUND_TRUE, 0 );
+	//TEXT
+	ObjText_SetText(objTitleText, "SELECT THE DIFFICULTY");
+	ObjText_SetFontType(objTitleText,"SF Intellivised" );
+	ObjText_SetFontSize(objTitleText, 40);
+	//ObjText_SetFontBold(objTitleText, true);
+	ObjText_SetFontColorTop(objTitleText, 197, 27, 26);
+	ObjText_SetFontColorBottom(objTitleText, 31, 176, 31);
+	ObjText_SetFontBorderType(objTitleText, BORDER_FULL);
+	ObjText_SetFontBorderColor(objTitleText,255, 255, 255);
+	ObjText_SetFontBorderWidth(objTitleText, 2);
+	Obj_SetRenderPriorityI(objTitleText, 30);
+	ObjRender_SetX(objTitleText, 120);
+	ObjRender_SetY(objTitleText, 120);
+
+
+	let bEndDiffSelect = false;
+	
+
+	let selectedDiff = 1;
+	task TMenuItem(let index, let mx, let my, let text)
+	{
+		function CreateTextObject(let mx, let my, let text)
+		{
+			let obj = ObjText_Create();
+			ObjText_SetText(obj, text);
+			ObjText_SetFontSize(obj, 30);
+			ObjText_SetFontType(obj, " Klein Text Book");
+			ObjText_SetFontBold(obj, true);
+			ObjText_SetFontColorTop(obj, 97, 28, 74);
+			ObjText_SetFontColorBottom(obj, 18, 179, 17);
+			ObjText_SetFontBorderType(obj, BORDER_FULL);
+			ObjText_SetFontBorderColor(obj,255, 255, 255);
+			ObjText_SetFontBorderWidth(obj, 2);
+			Obj_SetRenderPriorityI(obj, 30);
+			ObjRender_SetX(obj, mx);
+			ObjRender_SetY(obj, my);
+			return obj;
+		}
+
+		let objText = CreateTextObject(mx, my, text);
+		let objSelect = CreateTextObject(mx, my, text);
+		ObjRender_SetBlendType(objSelect, BLEND_ADD_RGB);
+		while(!bEndDiffSelect)
+		{
+			Obj_SetVisible(objSelect, index == selectedDiff);
+			yield;
+		}
+		Obj_Delete(objText);
+		Obj_Delete(objSelect);
+	}
+
+	//メニュー配置
+	let mx = GetScreenWidth()/2-50;
+	let my = 200;
+	let diffTexts = ["Easy", "Normal", "Hard"];
+	var countMenu = length(diffTexts);
+	ascent( iText in 0 .. length(diffTexts))
+	{
+		TMenuItem(iText, mx, my, diffTexts[iText]);
+		my += 45;
+	//	mx -= 10;
+	}
+
+	while(GetVirtualKeyState(VK_OK)!= KEY_FREE){yield;}
+	loop{
+		function CreateTextObject(let mx, let my, let text)
+		{
+			let obj = ObjText_Create();
+			ObjText_SetText(obj, text);
+			ObjText_SetFontSize(obj, 20);
+			ObjText_SetFontType(obj, " Klein Text Book");
+			ObjText_SetFontBold(obj, true);
+			ObjText_SetFontColorTop(obj, 128, 128, 255);
+			ObjText_SetFontColorBottom(obj, 64, 64, 255);
+			ObjText_SetFontBorderType(obj, BORDER_FULL);
+			ObjText_SetFontBorderColor(obj,255, 255, 255);
+			ObjText_SetFontBorderWidth(obj, 2);
+			Obj_SetRenderPriorityI(obj, 30);
+			ObjRender_SetX(obj, mx);
+			ObjRender_SetY(obj, my);
+			return obj;
+		}
+		//SELECTION CHANGE
+		if(GetVirtualKeyState(VK_UP)== KEY_PUSH){
+			selectedDiff--;
+		}
+		if(GetVirtualKeyState(VK_DOWN)== KEY_PUSH){
+			selectedDiff++;
+		}
+		if(selectedDiff>2){
+			selectedDiff = selectedDiff-3; //???
+		}
+		if(selectedDiff<0){
+		selectedDiff = selectedDiff+3; //???
+		}
+		//DIFFICULTY IS SELECTED
+		if(GetVirtualKeyState(VK_OK) == KEY_PUSH){
+			PlaySFX(select);
+			if(selectedDiff == 0){ SetCommonData("diff",1 );} //Easy
+			if(selectedDiff == 1){ SetCommonData("diff",2 );} //Normal
+			if(selectedDiff == 2){ SetCommonData("diff",3 );} //Hard
+			NotifyEventAll(EV_MAKE_BACKGROUND_FALSE, 0 );
+			bEndDiffSelect = true;
+			//break;
+			return 1;
+		}
+
+		if(GetVirtualKeyState(VK_CANCEL) == KEY_PUSH){
+			PlaySFX(cancel);
+			bEndDiffSelect = true;
+			return -1;
+		}
+		yield;
+	}
+		
+		
+}
+
+//----------------------------------------------------
+// Player selection
+//----------------------------------------------------
+function TPlayerSelect{	
+	//returns 1 if the player is selected
+	//returns -1 if not
+
+	NotifyEventAll(EV_MAKE_BACKGROUND_TRUE, 0 );
+	//TEXT
+	ObjText_SetText(objTitleText, "SELECT YOUR FAVORITE POWER");
+	ObjText_SetFontType(objTitleText,"SF Intellivised" );
+	ObjText_SetFontSize(objTitleText, 40);
+	//ObjText_SetFontBold(objTitleText, true);
+	ObjText_SetFontColorTop(objTitleText, 197, 27, 26);
+	ObjText_SetFontColorBottom(objTitleText, 31, 176, 31);
+	ObjText_SetFontBorderType(objTitleText, BORDER_FULL);
+	ObjText_SetFontBorderColor(objTitleText,255, 255, 255);
+	ObjText_SetFontBorderWidth(objTitleText, 2);
+	Obj_SetRenderPriorityI(objTitleText, 30);
+	ObjRender_SetX(objTitleText, 50);
+	ObjRender_SetY(objTitleText, 50);
+
+
+	let bEndPlayerSelect = false;
+	
+	
+
+	let selectedPlayer = 0;
+	task TMenuItem(let index, let mx, let my, let text)
+	{
+		function CreateTextObject(let mx, let my, let text)
+		{
+			let obj = ObjText_Create();
+			ObjText_SetText(obj, text);
+			ObjText_SetFontSize(obj, 30);
+			ObjText_SetFontType(obj, " Klein Text Book");
+			ObjText_SetFontBold(obj, true);
+			ObjText_SetFontColorTop(obj, 97, 28, 74);
+			ObjText_SetFontColorBottom(obj, 18, 179, 17);
+			ObjText_SetFontBorderType(obj, BORDER_FULL);
+			ObjText_SetFontBorderColor(obj,255, 255, 255);
+			ObjText_SetFontBorderWidth(obj, 2);
+			Obj_SetRenderPriorityI(obj, 30);
+			ObjRender_SetX(obj, mx);
+			ObjRender_SetY(obj, my);
+			return obj;
+		}
+
+		let objText = CreateTextObject(mx, my, text);
+		let objSelect = CreateTextObject(mx, my, text);
+		ObjRender_SetBlendType(objSelect, BLEND_ADD_RGB);
+		while(!bEndPlayerSelect)
+		{
+			Obj_SetVisible(objSelect, index == selectedPlayer);
+			yield;
+		}
+		Obj_Delete(objText);
+		Obj_Delete(objSelect);
+	}
+
+	//メニュー配置
+	let mx = GetScreenWidth()/2-50;
+	let my = 200;
+	let diffTexts = ["ICE", "FIRE"];
+	var countMenu = length(diffTexts);
+	ascent( iText in 0 .. length(diffTexts))
+	{
+		TMenuItem(iText, mx, my, diffTexts[iText]);
+		my += 45;
+	//	mx -= 10;
+	}
+
+	while(GetVirtualKeyState(VK_OK)!= KEY_FREE){yield;}
+	loop{
+		function CreateTextObject(let mx, let my, let text)
+		{
+			let obj = ObjText_Create();
+			ObjText_SetText(obj, text);
+			ObjText_SetFontSize(obj, 20);
+			ObjText_SetFontType(obj, " Klein Text Book");
+			ObjText_SetFontBold(obj, true);
+			ObjText_SetFontColorTop(obj, 128, 128, 255);
+			ObjText_SetFontColorBottom(obj, 64, 64, 255);
+			ObjText_SetFontBorderType(obj, BORDER_FULL);
+			ObjText_SetFontBorderColor(obj,255, 255, 255);
+			ObjText_SetFontBorderWidth(obj, 2);
+			Obj_SetRenderPriorityI(obj, 30);
+			ObjRender_SetX(obj, mx);
+			ObjRender_SetY(obj, my);
+			return obj;
+		}
+		//SELECTION CHANGE
+		if(GetVirtualKeyState(VK_UP)== KEY_PUSH){
+			selectedPlayer--;
+		}
+		if(GetVirtualKeyState(VK_DOWN)== KEY_PUSH){
+			selectedPlayer++;
+		}
+		if(selectedPlayer>1){
+			selectedPlayer = 0; 
+		}
+		if(selectedPlayer<0){
+		selectedPlayer = 1; 
+		}
+		//PLAYER IS SELECTED
+		if(GetVirtualKeyState(VK_OK) == KEY_PUSH){
+			PlaySFX(select);
+			if(selectedPlayer == 0){ SetCommonData("playerType",0 );} //ICE
+			if(selectedPlayer == 1){ SetCommonData("playerType",1 );} //FIRE
+			
+			NotifyEventAll(EV_MAKE_BACKGROUND_FALSE, 0 );
+			bEndPlayerSelect = true;
+			//break;
+			return 1;
+		}
+
+		if(GetVirtualKeyState(VK_CANCEL) == KEY_PUSH){
+			PlaySFX(cancel);
+			bEndPlayerSelect = true;
+			return -1;
+		}
+		yield;
+	}
+		
+		
+}
+//----------------------------------------------------
+// ステージシーン
+//----------------------------------------------------
+task TStageScene(let pathReplay)
+{
+	let dirCurrent = GetCurrentScriptDirectory();
+	let dirModule = GetModuleDirectory();
+	let pathMainScript = dirModule ~ "/script/ga_sotca/stage/Stage1.dnh";
+	//let pathMainScript = dirModule ~ "/script/ga_sotca/stage/Stage2.dnh";
+	//let pathMainScript = dirModule ~ "/script/ga_sotca/stage/Stage3.dnh";
+	//let pathMainScript = dirModule ~ "/script/ga_sotca/stage/Stage4.dnh";
+	//let pathMainScript = dirModule ~ "/script/ga_sotca/stage/Stage5.dnh";
+	//let pathMainScript = dirModule ~ "/script/ga_sotca/stage/StageCredits.dnh";
+	let pathPlayer = "";
+	
+	//let pathMainScript = dirModule ~ "/script/ga_sotca/stage/ExRumia_Stage.txt";
+	//let pathPlayer = dirModule ~ "script/player/default_player/Default_Player_Rumia.txt";
+	if(GetCommonData("playerType",0  )== 0){
+		 pathPlayer = dirModule ~ "script/ga_sotca/player/GlenrynA.txt";}
+	if(GetCommonData("playerType",0  )== 1){
+		 pathPlayer = dirModule ~ "script/ga_sotca/player/GlenrynB.txt";}
+	//--------------------------------
+	//画面遷移
+	RenderSceneToTransitionTexture();
+	TTransition();
+
+	//--------------------------------
+	//ステージ初期化
+	InitializeStageScene();
+	if(length(pathReplay) > 0)
+	{
+		SetStageReplayFile(pathReplay);
+	}
+
+	//--------------------------------
+	//初期ステージ設定
+	let indexStage = 1; //ステージインデックス
+	SetStageIndex(indexStage);
+	SetStageMainScript(pathMainScript);
+	SetStagePlayerScript(pathPlayer);
+	StartStageScene();
+	loop(60){yield};
+	
+
+	//--------------------------------
+	//ステージ操作
+	loop
+	{
+		//--------------------------------
+		//一時停止チェック
+		if(GetVirtualKeyState(VK_PAUSE) == KEY_PUSH)
+		{
+			let resPause = RunPauseScene();
+			alternative(resPause)
+			case(RESULT_RETRY)
+			{
+				//最初からやり直す
+				if(!IsReplay())
+				{
+					//リトライ
+					TerminateStageScene();
+					TStageScene("");
+					return;
+				}
+			}
+			case(RESULT_END)
+			{
+				//一時停止中の終了
+				TerminateStageScene();
+			}
+		}
+
+		if(!IsReplay() && GetKeyState(KEY_BACK) == KEY_PUSH)
+		{
+			//リトライ
+			TerminateStageScene();
+			TStageScene("");
+			return;
+		}
+
+		//--------------------------------
+		//ステージ完了待ち
+		let stgSceneState = GetStageSceneState();
+		if(stgSceneState == STAGE_STATE_FINISHED)
+		{
+			
+			let stageResult = GetStageSceneResult();
+			alternative(stageResult)
+			case(STAGE_RESULT_CLEARED)
+			{
+				
+				//let dir = GetCurrentScriptDirectory();
+				//let file = ObjFile_Create(OBJ_FILE_TEXT );
+				//let path = dir ~ "/Data/rank.txt";
+				
+				
+				if(indexStage == 6)
+				{
+					
+					TEndScene();
+					break;
+				}
+				else
+				{
+					if(indexStage == 1 ){
+						
+					}
+					let dir = GetCurrentScriptDirectory();
+					
+					indexStage++;
+					SetStageIndex(indexStage);
+					if(indexStage == 2 ){pathMainScript = dirCurrent ~ "stage/Stage2.dnh";
+						AddScore(-GetScore());
+
+						ObjFile_OpenNW(file, path);
+						ObjFileT_AddLine(file,GetCommonData("scoreStg1",555 ));
+						ObjFile_Store(file);
+						
+					}
+					if(indexStage == 3 ){pathMainScript = dirCurrent ~ "stage/Stage3.dnh";
+						AddScore(-GetScore());
+						ObjFile_OpenNW(file, path);
+						ObjFileT_AddLine(file,GetCommonData("scoreStg2",555 ));
+						ObjFile_Store(file);
+						
+
+					}
+					if(indexStage == 4 ){pathMainScript = dirCurrent ~ "stage/Stage4.dnh";
+						AddScore(-GetScore());
+						ObjFile_OpenNW(file, path);
+						ObjFileT_AddLine(file,GetCommonData("scoreStg3",555 ));
+						ObjFile_Store(file);
+						
+
+					}
+					if(indexStage == 5 ){pathMainScript = dirCurrent ~ "stage/Stage5.dnh";
+
+						AddScore(-GetScore());
+						ObjFile_OpenNW(file, path);
+						ObjFileT_AddLine(file,GetCommonData("scoreStg4",555 ));
+						ObjFile_Store(file);
+						
+
+					}
+					if(indexStage == 6 ){pathMainScript = dirCurrent ~ "stage/StageCredits.dnh";
+						AddScore(-GetScore());
+						ObjFile_OpenNW(file, path);
+						ObjFileT_AddLine(file,GetCommonData("scoreStg5",555 ));
+						ObjFile_Store(file);
+						
+
+					}
+					SetStageMainScript(pathMainScript); 
+					SetStagePlayerScript(pathPlayer);
+					StartStageScene();
+					TTransition();
+				}
+			}
+			case(STAGE_RESULT_PLAYER_DOWN)
+			{
+				
+				TEndScene();
+				break;
+			}
+			case(STAGE_RESULT_BREAK_OFF)
+			{
+				
+				TTitleScene();
+				break;
+			}
+		}
+		yield;
+	}	
+
+	TTransition();
+}
+
+//----------------------------------------------------
+// OPTIONS
+//----------------------------------------------------
+
+#include "./OptionsScene.dnh"
+
+task OptionsScene() {
+    loop(5) {yield;}
+
+    TOptionsScene();
+}
+
+
+
+//----------------------------------------------------
+// STORY SCENE
+//----------------------------------------------------
+
+#include "./StoryScene.dnh"
+
+task StoryScene() {
+    loop(5) {yield;}
+
+    TStoryScene();
+}
+
+//----------------------------------------------------
+// HOW TO PLAY SCENE
+//----------------------------------------------------
+
+#include "./HowToPlayScene.dnh"
+
+task HowToPlayScene() {
+    loop(5) {yield;}
+
+    THowToPlayScene();
+}
+
+//----------------------------------------------------
+// CREDITS SCENE
+//----------------------------------------------------
+
+#include "./CreditsScene.dnh"
+
+task CreditsScene() {
+    loop(5) {yield;}
+
+    TCreditsScene();
+}
+
+
+//----------------------------------------------------
+// 終了シーン
+//----------------------------------------------------
+task TEndScene()
+{
+	if(IsReplay())
+	{
+		TTitleScene();
+		return;
+	}
+
+	//--------------------------------
+	//ステージ終了処理
+	FinalizeStageScene();
+
+	//--------------------------------
+	//終了シーンスクリプト起動
+	let dirModule = GetModuleDirectory();
+	let pathScript = dirModule ~ "script/default_system/Default_EndScene.txt";
+	let idScript = LoadScript(pathScript);
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript))
+	{
+		yield;
+	}
+
+	//--------------------------------
+	//終了シーン結果処理
+	let result = GetScriptResult(idScript);
+	alternative(result)
+	case(RESULT_SAVE_REPLAY)
+	{
+		//リプレイ保存
+		TReplaySaveScene();
+	}
+	case(RESULT_END)
+	{
+		//再生終了
+		TTitleScene();
+	}
+	case(RESULT_RETRY)
+	{
+		//リトライ
+		TStageScene("");
+	}
+}
+
+//----------------------------------------------------
+// 一時停止シーン
+//----------------------------------------------------
+function RunPauseScene()
+{
+	RenderSceneToTransitionTexture();
+	PauseStageScene(true);
+
+	//let dirModule = GetModuleDirectory();
+	let dirCurrent = GetCurrentScriptDirectory();
+	let pathScript = dirCurrent ~ "system/Pause.txt";
+
+	//--------------------------------
+	//一時停止シーンンスクリプト起動
+	let idScript = LoadScript(pathScript);
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript))
+	{
+		yield;
+	}
+
+	PauseStageScene(false);
+
+	let res = GetScriptResult(idScript);
+	return res;
+}
+
+
+//----------------------------------------------------
+// リプレイ選択シーン
+//----------------------------------------------------
+task TReplaySelectScene()
+{
+	let dir = GetModuleDirectory();
+	let dirCurrent = GetCurrentScriptDirectory();
+	let pathScript = dirCurrent ~ "./system/ExRumia_Package_ReplaySelectScene.txt";
+
+	//--------------------------------
+	//リプレイ選択シーンスクリプト起動
+	let idScript = LoadScript(pathScript);
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript))
+	{
+		yield;
+	}
+
+	//--------------------------------
+	//リプレイ選択シーン結果処理
+	let result = GetScriptResult(idScript);
+	if(length(result) == 0)
+	{
+		//タイトルシーンへ戻る
+		TTitleScene();
+	}
+ 	else
+ 	{
+		//リプレイ再生開始
+		TStageScene(result);
+	}
+
+}
+
+
+//----------------------------------------------------
+// リプレイ保存シーン
+//----------------------------------------------------
+task TReplaySaveScene()
+{
+	let dirModule = GetModuleDirectory();
+	let pathScript = dirModule ~ "script/default_system/Default_ReplaySaveScene.txt";
+
+	//--------------------------------
+	//リプレイ保存シーンスクリプト起動
+	let idScript = LoadScript(pathScript);
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript))
+	{
+		yield;
+	}
+
+
+	//--------------------------------
+	//タイトルシーンへ遷移
+	TTitleScene();
+}
+
+
+//----------------------------------------------------
+// 画面遷移エフェクト
+//----------------------------------------------------
+function RenderSceneToTransitionTexture()
+{
+	//現在のシーン内容を画面遷移用テクスチャに描画
+	let textureName = GetTransitionRenderTargetName();
+	RenderToTextureA1(textureName, 0, 100, true);
+}
+
+task TTransition
+{
+
+	
+	let textureName = GetTransitionRenderTargetName();
+	
+	let objImage = ObjPrim_Create(OBJ_SPRITE_2D); //2Dスプライトオブジェクト生成
+	Obj_SetRenderPriorityI(objImage, 100); //描画優先度を設定
+	ObjPrim_SetTexture(objImage, textureName); //テクスチャを設定
+	ObjSprite2D_SetSourceRect(objImage, 0, 0, 640, 480);
+	ObjSprite2D_SetDestRect(objImage, 0, 0, 640, 480);
+
+	let alpha = 255;
+	while(alpha > 0)
+	{
+		ObjRender_SetAlpha(objImage, alpha);
+		alpha -= 16;
+		yield;
+	}
+	Obj_Delete(objImage);
+}
+
+
+@Finalize
+{
+}
+
+
+
+

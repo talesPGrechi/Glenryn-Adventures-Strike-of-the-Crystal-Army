@@ -1,0 +1,194 @@
+task EnemyCrystalDiamont(x, y, angleE, speedE,life,movement, attack){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, life);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+
+	TDrawLoopDiamont(objEnemy);
+	TMainLoop;
+	//TAttack;
+	TFinalize;
+	
+	}
+	
+
+   task TDrawLoopDiamont(objEnemy) {
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/diamond.png"; //imagem dos sprites
+		let frame = 1; //contador
+		ObjPrim_SetTexture(objEnemy, img ); // setando a textura no objeto do inimigo
+		ObjRender_SetScaleXYZ(objEnemy, 1.5, 1.5, 1);
+		ObjSprite2D_SetSourceRect(objEnemy,0, 0, 32, 32); //"recorte" inicial
+		ObjSprite2D_SetDestCenter(objEnemy);
+		ObjRender_SetBlendType(objEnemy,BLEND_ALPHA );
+		while(!Obj_IsDeleted(objEnemy)){ // enquanto estiver vivo...
+			//hitboxes
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 15); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 15);
+	
+			//animação
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy,0, 0, 32, 32);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy,32, 0, 64, 32);}
+			if(frame == 24){ObjSprite2D_SetSourceRect(objEnemy,64, 0, 96, 32);}
+			if(frame == 32){ObjSprite2D_SetSourceRect(objEnemy,96, 0, 128, 32);}
+			if(frame == 40){ObjSprite2D_SetSourceRect(objEnemy,128, 0, 160, 32);}
+			if(frame == 48){ObjSprite2D_SetSourceRect(objEnemy,160, 0, 192, 32);}
+			if(frame == 56){ObjSprite2D_SetSourceRect(objEnemy,192, 0, 224, 32);}
+			if(frame == 64){ObjSprite2D_SetSourceRect(objEnemy,224, 0, 256, 32);}
+			
+			frame++;
+           
+            if(frame>=64){frame = 0;} //loop
+			
+			yield;
+		}
+    }
+
+    task TMainLoop {
+		let count =1;
+		TMovement;
+
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          isOut = true;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+       
+		count++;
+	yield;
+		}
+		
+      }
+    
+	
+	task TMovement{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		
+		alternative(movement)
+		case(0){
+			TAttack;
+		}
+		case(1){
+			wait(60);
+			ObjMove_SetSpeed(objEnemy, 0 );
+			wait(10);
+			TAttack;
+			loop{
+				let side = truncate(rand(1,3 ));
+				if(side==1){ObjMove_SetDestAtFrame(objEnemy, rand(10,50 ),ObjMove_GetY(objEnemy) ,60 );}
+
+				if(side==2){ObjMove_SetDestAtFrame(objEnemy, rand(250,300 ),ObjMove_GetY(objEnemy) ,60 );}
+				//wait(150);
+				
+				wait(150);
+			yield;
+			}
+		}
+		case(99){
+			wait(20);
+			ObjMove_SetSpeed(objEnemy, 0 );
+			wait(10);
+			
+			loop{
+				loop(6){
+					TAttack;
+					wait(10);					
+				}
+				wait(180);
+			yield;
+			}
+		}
+		
+	}
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		
+		alternative(attack)
+		case(0){
+			
+		}
+		case(1){
+			let ang = GetAngleToPlayer(objEnemy);
+			
+			ascent(i in -1..2){
+				let objShot = CreateShotOA1(objEnemy,3 ,ang+i*25 ,132 ,5 );
+				reflection(objShot, ObjMove_GetAngle(objShot));	
+			}
+		}
+		case(2){
+			loop{
+				loop(5){
+					ascent(i in 1..5){
+						let angToPlayer = GetAngleToPlayer(objEnemy);
+						if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+						CreateShotA2(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy) ,0.1 ,angToPlayer-30 ,i*0.025 ,6 ,62 ,10 )}
+						wait(2);
+					ascent(i in 1..5){
+						let angToPlayer = GetAngleToPlayer(objEnemy);
+						if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+						CreateShotA2(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy) ,0.1 ,angToPlayer ,i*0.025 ,6 ,62 ,10 )}
+						wait(2);
+					ascent(i in 1..5){
+						let angToPlayer = GetAngleToPlayer(objEnemy);
+						if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+						CreateShotA2(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy) ,0.1 ,angToPlayer+30 ,i*0.025 ,6 ,62 ,10 )}
+						wait(2);
+					}
+				wait(125);
+			yield;
+			}
+		}
+
+		case(3){
+			let ang =GetAngleToPlayer(objEnemy);
+			ascent(i in 0..21){
+				CreateShotA1(ObjMove_GetX(objEnemy)+30* cos(i*18),ObjMove_GetY(objEnemy)+30*sin(i*18) ,2 ,ang ,163 ,0 );
+				ang+=360/20;
+			}
+		}
+		
+		
+	}
+    
+	task reflection(obj, ang){
+		while(ObjMove_GetX(obj)>0 && ObjMove_GetX(obj) < GetStgFrameWidth() && ObjMove_GetY(obj)>0){yield;}
+		if(ObjMove_GetX(obj) <= 0){
+			ObjMove_SetX(obj,0 );
+			ObjMove_SetAngle(obj,180 - ang );
+		}
+		if(ObjMove_GetX(obj) >= GetStgFrameWidth()){
+			ObjMove_SetX(obj,GetStgFrameWidth() );
+			ObjMove_SetAngle(obj,180 - ang );
+		}
+		if(ObjMove_GetY(obj) <= 0){
+			ObjMove_SetY(obj,0 );
+			ObjMove_SetAngle(obj, -1 * ang );
+		}
+		if(ObjMove_GetY(obj) >= GetStgFrameHeight()-1){
+			ObjMove_SetY(obj,10, );
+			ObjMove_SetAngle(obj, -1 * ang );
+		}
+	}
+    task TFinalize {
+        while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		Obj_Delete(objEnemy);
+		if(!isOut){
+		//	PlaySFX(damageCrystal);
+			AddScore(100 * GetCommonData("diff",1 ));
+		}else{AddScore(1);}
+    }
+}

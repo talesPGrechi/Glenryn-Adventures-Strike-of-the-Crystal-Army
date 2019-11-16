@@ -1,0 +1,33 @@
+shot_image = "./playershot.png"
+
+ShotData {
+	id = 1
+	rect = (6,80,36,120)
+	render = ALPHA
+	alpha = 70
+	collision = 16
+}
+
+ShotData {
+	id = 2
+	rect = (40,80,70,120)
+	render = ALPHA
+	alpha = 70
+	collision = 16
+}
+
+ShotData {
+	id = 3
+	rect = (0,145,35,190)
+	render = ALPHA
+	alpha = 70
+	collision = 20
+}
+
+ShotData {
+	id = 4
+	rect = (40,155,90,180)
+	render = ALPHA
+	alpha = 70
+	collision = 20
+}

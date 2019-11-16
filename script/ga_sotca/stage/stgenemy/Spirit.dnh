@@ -1,0 +1,248 @@
+task SpiritEnemy(x, y,lifeE, angleE, speedE, mov, attack, auxNumber,diff){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	let ex=0;
+	let ey =0;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, lifeE);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+	TDrawLoopSpiritEnemy(objEnemy);
+	TMainLoop;
+	TMovement;
+	//TAttack;
+	TFinalize;
+	}
+	
+
+    
+
+    task TMainLoop {
+    	
+		let count =1;
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	//	ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30); 
+     //   ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30);
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          isOut = true;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+        //movimento
+		
+
+		count++;
+	yield;
+		}
+		
+      }
+    
+	task TMovement{
+		
+		alternative(mov)
+		case(1){
+			TAttack;
+			let count =0;
+			while(!Obj_IsDeleted(objEnemy)){
+				ObjMove_SetY(objEnemy, y+(count*speedE)*sin(angleE)+30*cos(count*4) ); //???
+				//y+(count*speedE)*sin(angleE)+30*cos(count*4) up and down pattern
+				count++;
+			yield;
+			}
+			
+
+		}
+		case(2){
+			wait(60);
+			ObjMove_SetSpeed(objEnemy,0 );
+			TAttack;
+			loop{
+
+				ObjMove_AddPatternA1(objEnemy,1,0.5,180 );
+        		wait(300);
+        		ObjMove_AddPatternA1(objEnemy,1,0.5,0 );
+        		wait(600);
+        		ObjMove_AddPatternA1(objEnemy,1,0.5,180 );
+        		wait(300);
+        		yield;
+			
+			}
+			
+		}
+		case(3){
+			wait(120);
+
+			ObjMove_SetSpeed(objEnemy,3 );
+			ObjMove_SetAngularVelocity(objEnemy,-2 );
+			TAttack;
+		}
+		case(4){
+			wait(120);
+			ObjMove_SetSpeed(objEnemy,3 );
+			ObjMove_SetAngularVelocity(objEnemy,2 );
+			TAttack;
+			
+		}
+		
+	}
+	
+    task TAttack{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+
+		alternative(attack)
+		case(1){
+			loop(4){
+				PlaySFX(enemyAttack4);
+				let objShot =CreateShotOA1(objEnemy,2.5 ,GetAngleToPlayer(objEnemy) ,53 ,8 );
+				ObjRender_SetScaleXYZ(objShot,1.5 *diff ,1.5*diff ,1 );
+				wait(25);
+			}
+			wait(10);
+			TAttack;
+		}
+		case(2){
+			TRingShot(objEnemy);
+			while(!Obj_IsDeleted(objEnemy)){
+				let baseAngle = 90;
+				let baseAngle2 = 0;
+				if(diff ==1){
+				loop(30){
+						PlaySFX(enemyAttack6);
+						CreateShotOA1(objEnemy,2.5 ,baseAngle ,78 ,0 );
+						CreateShotOA1(objEnemy,2.5 ,baseAngle2 ,78 ,0 );
+						CreateShotOA1(objEnemy,2.5 ,-1*baseAngle ,78 ,0 );
+						CreateShotOA1(objEnemy,2.5 ,-1*baseAngle2 ,78 ,0 );
+						baseAngle+=360/30;
+						baseAngle2+=360/30;
+						wait(3);
+					}	
+				}
+				if(diff ==2 ){
+					loop(30){
+						CreateShotOA1(objEnemy,1.5*diff ,baseAngle2 ,78 ,0 );
+						CreateShotOA1(objEnemy,1.5*diff ,-1*baseAngle ,78 ,0 );
+						baseAngle+=360/30;
+						baseAngle2+=360/30;
+						wait(3);
+					}
+				}
+				if(diff ==3 ){
+					
+					loop(30){
+
+						CreateShotOA1(objEnemy,1.5*diff ,baseAngle2 ,78 ,0 );
+						CreateShotOA1(objEnemy,1.5*diff ,-1*baseAngle ,78 ,0 );
+						baseAngle+=360/30;
+						baseAngle2+=360/30;
+						wait(3);
+					}
+				}
+			yield;
+			}
+		}
+		case(3){
+			TAuxLaser(objEnemy);
+			let baseAng =0;
+			
+			loop{
+				let angShot = baseAng;
+				loop(6){
+					if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+					PlaySFX(enemyAttack1);
+					CreateShotOA1(objEnemy,2.5,angShot ,162 ,0 );
+					angShot+=360/6;
+				}
+
+				wait(10);
+				baseAng+=45;
+			yield;
+			}
+
+		}
+	}
+    
+
+    task TFinalize {
+        while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		DeathAttack(objEnemy,diff);
+		Obj_Delete(objEnemy);
+		if(!isOut){
+			PlaySFX(damage);
+			AddScore(100 * GetCommonData("diff",1 ));
+		}else{AddScore(1);}
+    }
+}
+task TDrawLoopSpiritEnemy(objEnemy) { 
+		
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/SpiritEnemy.png";
+		let frame =1;
+		
+		ObjPrim_SetTexture(objEnemy, img );
+		ObjSprite2D_SetSourceRect(objEnemy, 0,0,40,50); //8
+		//ObjSprite2D_SetSourceRect(objEnemy, 40,0,80,50); //16
+		//ObjSprite2D_SetSourceRect(objEnemy, 90,0,130,49); //24
+		ObjSprite2D_SetDestCenter(objEnemy);
+		
+		
+		
+		while(!Obj_IsDeleted(objEnemy)){
+			// HITBOXES 
+			
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25);
+			
+			//animação 
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy, 0,0,40,49);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy, 40,0,80,49);}
+			if(frame == 24){ObjSprite2D_SetSourceRect(objEnemy, 90,0,130,49);}
+			frame++;
+			if(frame >=32){frame=0;}
+		
+			yield;
+		}
+		
+    }
+
+task DeathAttack(objEnemy,diff){
+	let baseAngle = GetAngleToPlayer(objEnemy);
+	loop(30){
+		let objShot =CreateShotOA1(objEnemy,2.5 ,baseAngle ,44 ,0 );
+		ObjRender_SetScaleXYZ(objShot,1.5 *diff ,1.5*diff ,1 );
+		baseAngle+=360/30;
+	}	
+}
+
+task TRingShot(objEnemy){
+	while(!Obj_IsDeleted(objEnemy)){
+		wait(75);
+		let baseAngle = GetAngleToPlayer(objEnemy);
+		PlaySFX(enemyAttack4);
+		loop(30){
+		let objshot = CreateShotOA1(objEnemy,2.5 ,baseAngle ,44 ,0 );
+		ObjRender_SetScaleXYZ(objshot, 1.5,1.5 ,0 );
+		baseAngle+=360/30;
+		}	
+
+	}
+}
+task TAuxLaser(objEnemy){
+	loop{
+		
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;}
+		CreateStraightLaserA1(ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), GetAngleToPlayer(objEnemy),555 ,20 ,35 ,222 ,60 );
+		wait(60);
+		PlaySFX(enemyLaser);
+		wait(120);
+	}
+}

@@ -1,0 +1,142 @@
+//----------------------------------------------------
+// Credits
+//----------------------------------------------------
+task TCreditsScene {
+	let currentPage =1;
+	let bEndStory = false;
+	TBackgroundStory; //ativa task para o background
+	//objs
+	let objLabel = ObjText_Create();
+	let objTeste = ObjText_Create;
+	let objText2 = ObjText_Create();
+	let objText3 = ObjText_Create();
+	//taks page1
+	TPage1;
+	
+	task TBackgroundStory(){
+		let dir = GetCurrentScriptDirectory();
+		let pathTitle = dir ~ "img/menu/menu_others.png";
+
+		let objTitleImage = ObjPrim_Create(OBJ_SPRITE_2D); 
+		Obj_SetRenderPriorityI(objTitleImage, 20); 
+		ObjPrim_SetTexture(objTitleImage, pathTitle); 
+		ObjSprite2D_SetSourceRect(objTitleImage, 0, 0, 640, 480);
+		ObjSprite2D_SetDestRect(objTitleImage, 0, 0, 640, 480);
+		ObjRender_SetAlpha(objTitleImage,150 );
+		while(!bEndStory){
+			if(!bEndStory){
+				Obj_SetVisible(objTitleImage,true);
+			}else{
+				Obj_Delete(objTitleImage);
+			}
+			yield;
+		}
+		Obj_Delete(objTitleImage);
+	}
+
+	task TPage1{
+	let stringStory = "Made by TALES PEREIRA GRECHI!!! [r][r] This game use free Sprites and Tiles from:[r][r] opengameart.org / pixanna.nl / gameart2d.com / [r]
+						forums.rpgmakerweb.com / rpgmakercentral.com / [r] grandmadebslittlebits.wordpress.com /pixabay.com  /[r]
+						freeimageslive.co.uk / centrorpg.com /  zdoom.org /[r] spriters-resource.com /[r][r]
+						This game use sounds from: freesound.org /[r] freesfx.co.uk /
+						 [r][r]PRESS RIGHT FOR SPECIAL THANKS, X TO EXIT";
+	
+    	ObjText_SetText(objLabel, "CREDITS");
+		ObjText_SetFontType(objLabel,"SF Intellivised" );
+		ObjText_SetFontSize(objLabel, 40);
+		//ObjText_SetFontBold(objTitleText, true);
+		ObjText_SetFontColorTop(objLabel, 197, 27, 26);
+		ObjText_SetFontColorBottom(objLabel, 31, 176, 31);
+		ObjText_SetFontBorderType(objLabel, BORDER_FULL);
+		ObjText_SetFontBorderColor(objLabel,255, 255, 255);
+		ObjText_SetFontBorderWidth(objLabel, 2);
+		Obj_SetRenderPriorityI(objLabel, 30);
+		ObjRender_SetX(objLabel, 250);
+		ObjRender_SetY(objLabel, 10);
+	 
+	 
+        ObjText_SetText(objTeste, stringStory);
+        ObjText_SetFontSize(objTeste, 26); // tamanho da fonte
+        ObjText_SetFontType(objTeste, "Comic Sans MS"); // nome da fonte
+        ObjText_SetFontColorTop(objTeste, 0, 0, 255); // cor no topo das letras
+        ObjText_SetFontColorBottom(objTeste, 200, 200, 200); // cor na parte de baixo das letras 
+        ObjText_SetFontBorderType(objTeste, BORDER_FULL); // bordas no texto
+        ObjText_SetFontBorderColor(objTeste, 0, 0, 0); // cor da borda
+        ObjText_SetFontBorderWidth(objTeste, 3); // espessura da borda
+        Obj_SetRenderPriority(objTeste, 0.95); // render priority ("camadas")
+        ObjRender_SetPosition(objTeste, 10, 55, 0); // posição x,y,z
+        ObjText_SetHorizontalAlignment(objTeste, ALIGNMENT_LEFT); // alinhamento
+        ObjText_SetMaxWidth(objTeste, 999); // largura máxima antes da quebra de linha
+		//Obj_SetVisible(objTeste,true);
+        }
+
+    task TPage2{
+	let stringStory = "[r]************ SPECIAL THANKS ************[r][r] HELEPOLIS: for video tutorial about ph3[r] ANDREW FAN: for awesome tutorials![r](check out his yt channel: Sparen of Iria) [r]
+	[r]shrinemaiden.org: for providing translated [r] documentation about ph3 ";
+	
+	 
+        ObjText_SetText(objText2, stringStory);
+        ObjText_SetFontSize(objText2, 26); // tamanho da fonte
+        ObjText_SetFontType(objText2, "Comic Sans MS"); // nome da fonte
+        ObjText_SetFontColorTop(objText2, 0, 0, 255); // cor no topo das letras
+        ObjText_SetFontColorBottom(objText2, 200, 200, 200); // cor na parte de baixo das letras 
+        ObjText_SetFontBorderType(objText2, BORDER_FULL); // bordas no texto
+        ObjText_SetFontBorderColor(objText2, 0, 0, 0); // cor da borda
+        ObjText_SetFontBorderWidth(objText2, 3); // espessura da borda
+        Obj_SetRenderPriority(objText2, 0.95); // render priority ("camadas")
+        ObjRender_SetPosition(objText2, 10, 55, 0); // posição x,y,z
+        ObjText_SetHorizontalAlignment(objText2, ALIGNMENT_LEFT); // alinhamento
+        ObjText_SetMaxWidth(objText2, 650); // largura máxima antes da quebra de linha
+		//Obj_SetVisible(objTeste,true);
+    }
+
+
+	while(GetVirtualKeyState(VK_OK) != KEY_FREE) {yield;}
+	loop{
+		if (GetVirtualKeyState(VK_CANCEL) == KEY_PULL || GetVirtualKeyState(VK_OK) == KEY_PULL) {
+			Obj_Delete(objTeste);
+			Obj_Delete(objLabel);
+			Obj_Delete(objText2);
+			Obj_Delete(objText3);
+			bEndStory = true;
+            TTitleScene;
+            break;
+        }
+        if(GetVirtualKeyState(VK_RIGHT) == KEY_PUSH && currentPage<2){
+        	currentPage++;
+        	
+			//TPage2;
+			alternative(currentPage)
+			case (1){
+				Obj_SetVisible(objTeste,true );
+				TPage1;
+			}
+			case(2){
+				Obj_SetVisible(objTeste,false );
+				Obj_SetVisible(objText2,true );
+				TPage2;
+			}
+			
+        }
+        if(GetVirtualKeyState(VK_LEFT) == KEY_PUSH && currentPage>1){
+        	currentPage--;
+        	
+			alternative(currentPage)
+			case (1){
+				Obj_SetVisible(objText3,false );
+				Obj_SetVisible(objText2,false );
+				Obj_SetVisible(objTeste,true );
+				TPage1;
+			}
+			case(2){
+				Obj_SetVisible(objText3,false );
+				Obj_SetVisible(objTeste,false );
+				Obj_SetVisible(objText2,true );
+				TPage2;
+			}
+			
+        }
+		yield;
+	}
+   
+}

@@ -1,0 +1,39 @@
+//task para fazer os backgrounds
+//@event para deletar os objetos?
+let mainbg =  ObjPrim_Create(OBJ_SPRITE_2D);
+let mainbgImg = GetCurrentScriptDirectory() ~ "./img/menu/menu_main.png";
+let objTitleText = ObjText_Create();
+
+
+
+
+task TMakeBackground{
+	
+	ObjPrim_SetTexture(mainbg, mainbgImg);
+	ObjSprite2D_SetSourceRect(mainbgImg, 0, 0, 640, 480);
+	Obj_SetRenderPriorityI(mainbg,0 );
+	ObjSprite2D_SetDestRect(mainbgImg, 0, 0, 640, 480);
+	ObjRender_SetAlpha(mainbg,130 );
+
+
+}
+
+task TMakeTitle{
+	
+	//let objTitleText = ObjText_Create();
+	ObjText_SetText(objTitleText, "GLENRYN ADVENTURES [r]STRIKE OF THE CRYSTAL ARMY");
+	ObjText_SetFontType(objTitleText,"SF Intellivised" );
+	ObjText_SetFontSize(objTitleText, 40);
+	//ObjText_SetFontBold(objTitleText, true);
+	ObjText_SetFontColorTop(objTitleText, 197, 27, 26);
+	ObjText_SetFontColorBottom(objTitleText, 31, 176, 31);
+	ObjText_SetFontBorderType(objTitleText, BORDER_FULL);
+	ObjText_SetFontBorderColor(objTitleText,255, 255, 255);
+	ObjText_SetFontBorderWidth(objTitleText, 2);
+	Obj_SetRenderPriorityI(objTitleText, 30);
+	ObjRender_SetX(objTitleText, 48);
+	ObjRender_SetY(objTitleText, 48);
+
+}
+
+

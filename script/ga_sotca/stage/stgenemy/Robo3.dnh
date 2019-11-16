@@ -1,0 +1,178 @@
+task Robo3(x, y, angleE, speedE,life, attack){
+	
+    let objEnemy;
+	let count =0;
+	let isOut = false;
+	
+    TInitialize;
+
+    task TInitialize {
+
+    objEnemy = ObjEnemy_Create(OBJ_ENEMY);
+	ObjEnemy_Regist(objEnemy);
+	ObjEnemy_SetLife(objEnemy, life);
+	ObjEnemy_SetDamageRate(objEnemy, 100,100);
+	ObjMove_SetPosition(objEnemy, x, y);
+	ObjMove_SetAngle(objEnemy, angleE);
+	ObjMove_SetSpeed(objEnemy, speedE);
+	
+	TDrawLoopRobo3(objEnemy);
+	TMainLoop;
+	
+	TAttack;
+	TFinalize;
+	
+	}
+	
+
+   
+
+    task TMainLoop {
+		let count =1;
+      while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){
+	//	ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30); 
+     //   ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 30);
+        if(ObjMove_GetX(objEnemy) < -50 || ObjMove_GetX(objEnemy) > 500 || ObjMove_GetY(objEnemy) < -100 || ObjMove_GetY(objEnemy) > 500){
+          isOut = true;
+          ObjEnemy_SetLife(objEnemy, -1000);
+        }
+		//movimento
+		if(count %5 ==0){TMovement;}
+		if(count ==10 || count %60 ==0){TSound;}
+        alternative(attack)
+        case(1){
+        	
+			if(count %15 ==0){TAttack;}
+        }
+        case(2){
+        	if(count %15 ==0){TAttack;}
+        }
+        case(5){
+        	
+			if(count %15 ==0){TAttack;}
+        }
+
+		
+		
+		count++;
+	yield;
+		}
+		
+      }
+    
+	
+	task TMovement{
+		if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+		alternative(attack)
+        case(1){
+        	ObjMove_AddPatternA1(objEnemy,1,NO_CHANGE,ObjMove_GetAngle(objEnemy)-1.5 );
+			
+        }
+        case(2){
+        	ObjMove_AddPatternA1(objEnemy,1,NO_CHANGE,ObjMove_GetAngle(objEnemy)+1.5 );
+
+        }
+        case(5){
+        	ObjMove_AddPatternA1(objEnemy,1,NO_CHANGE,ObjMove_GetAngle(objEnemy)-1.5 );
+			
+        }
+        case(6){
+        	ObjMove_AddPatternA1(objEnemy,1,NO_CHANGE,ObjMove_GetAngle(objEnemy)+1.5 );
+			
+        }
+		
+	}
+
+    task TAttack{
+    	alternative(attack)
+		case(1){
+			if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+
+				let objShot =CreateShotA1(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy),1,270,50,0 );
+				
+				ObjMove_AddPatternA2(objShot,60,NO_CHANGE,90,NO_CHANGE,0,4);
+				
+		}
+		case(2){
+			if(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) <= 0){return;} // prevenir 0,0 spawn
+				
+				let objShot =CreateShotA1(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy),1,270,50,0 );
+				
+				ObjMove_AddPatternA2(objShot,60,NO_CHANGE,90,NO_CHANGE,0,4);
+				
+		}
+		case(5){
+				let objShot =CreateShotA1(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy),1,270,50,0 );
+				//TSound;
+				ObjMove_AddPatternA2(objShot,60,NO_CHANGE,90,NO_CHANGE,0,4);
+				
+		}
+    	case(6){
+				let objShot =CreateShotA1(ObjMove_GetX(objEnemy),ObjMove_GetY(objEnemy),1,270,50,0 );
+				//TSound;
+				ObjMove_AddPatternA2(objShot,60,NO_CHANGE,90,NO_CHANGE,0,4);
+				
+		}
+		
+	}
+    
+
+    task TFinalize {
+         while(ObjEnemy_GetInfo(objEnemy, INFO_LIFE) > 0){yield;}
+		
+		Obj_Delete(objEnemy);
+		if(!isOut){
+			PlaySFX(damage);
+			AddScore(100 * GetCommonData("diff",1 ));
+		}else{AddScore(1);}
+    }
+    function wait(n){
+    	loop(n){yield;}
+    }
+
+    task TSound{
+    	//while(!Obj_IsDeleted(objEnemy)){
+    		PlaySFX(enemyAttack1);
+    	//	wait(90);
+    		
+    		
+    	//}
+    }
+    
+}
+
+ task TDrawLoopRobo3(objEnemy) {
+		
+		let img = GetCurrentScriptDirectory ~"../../img/stg/enemies/RoboChopper.png";
+		let frame = 1;
+		
+		ObjPrim_SetTexture(objEnemy, img );
+		ObjRender_SetScaleXYZ(objEnemy, 1, 1, 1);
+		
+		ObjSprite2D_SetSourceRect(objEnemy, 0,0,64,64);
+		ObjSprite2D_SetDestCenter(objEnemy);
+		
+		
+		
+		while(!Obj_IsDeleted(objEnemy)){
+			// HITBOXES
+		
+			ObjEnemy_SetIntersectionCircleToShot(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25); 
+        	ObjEnemy_SetIntersectionCircleToPlayer(objEnemy, ObjMove_GetX(objEnemy), ObjMove_GetY(objEnemy), 25);
+			//animação 
+			
+			if(frame == 8){ObjSprite2D_SetSourceRect(objEnemy,64, 0, 128, 64);}
+			if(frame == 16){ObjSprite2D_SetSourceRect(objEnemy,128, 0, 192, 64);}
+			
+			frame++;
+           
+            if(frame>=24){frame = 0;}
+			
+			
+			
+			//count++;
+			yield;
+		}
+	//	Obj_Delete(obj);
+    }
+

@@ -1,0 +1,12 @@
+function InitConfig(){
+	if(!LoadCommonDataAreaA2("Options", GetCurrentScriptDirectory() ~ "data/Config.dat" )){
+		CreateCommonDataArea("Options");
+		SetAreaCommonData("Options","Lives" , 2);
+		SetAreaCommonData("Options","Spells" , 3);
+		SetAreaCommonData("Options","SFX" , 75);
+		SetAreaCommonData("Options","SFXIndex" , 4);
+		SetAreaCommonData("Options","BGM" , 75);
+		SetAreaCommonData("Options","BGMIndex" , 4);
+		SaveCommonDataAreaA2("Options",GetCurrentScriptDirectory() ~ "data/Config.dat" );
+	}
+}
