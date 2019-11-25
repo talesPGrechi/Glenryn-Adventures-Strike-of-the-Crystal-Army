@@ -1,33 +1,32 @@
-‰E’[‚ÅÜ‚è•Ô‚³‚È‚¢‚Ù‚¤‚ª“Ç‚İ‚â‚·‚¢‚Å‚·B
+It is easier to read if it is not folded at the right end.
 
-›DnhViewer‚É‚Â‚¢‚ÄB
-@ƒXƒNƒŠƒvƒg‚ğ’¼ÚÄ¶‚·‚éƒc[ƒ‹‚Å‚·B
-@©‹@ƒXƒNƒŠƒvƒg‚Æ“GƒXƒNƒŠƒvƒg‚ğƒhƒ‰ƒbƒO•ƒhƒƒbƒv‚Å“o˜^‚µ
-@Ä¶‚Å‚«‚Ü‚·B
+â—‹ About DnhViewer.
+A tool that plays scripts directly.
+Register your own script and enemy script by drag and drop
+Can play.
 
-@ƒTƒ“ƒvƒ‹‚Å‚ÍˆÈ‰º‚ğŠÜ‚ß‚Ä‚¢‚Ü‚·B
-@©‹@F/script/player/default_player/Default_Player_Rumia.txt
-@“GF/script/ExRumia/ExRumiaSpell01.txt
+The sample includes the following.
+Your machine: /script/player/default_player/Default_Player_Rumia.txt
+Enemies: /script/ExRumia/ExRumiaSpell01.txt
       /script/ExRumia/ExRumia_Plural.txt
       /script/ExRumia/ExRumia_Stage.txt
 
 
-›–{ƒ\ƒtƒg‚ÍƒtƒŠ[ƒ\ƒtƒg‚Å‚·B
-@ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğ—p‚¢‚Ä”­¶‚µ‚½‘¹ŠQ‚È‚Ç‚Ì•ÛØ‚Í‚¢‚Á‚³‚¢‚Å‚«‚Ü‚¹‚ñB
-@©ŒÈÓ”C‚Å‚¨Šè‚¢‚µ‚Ü‚·B
+â—‹ This software is free software.
+ï¼š We can not guarantee any damage caused by using the application.
+ Please take responsibility for your actions.
 
-›ƒCƒ“ƒXƒg[ƒ‹•û–@
-@“K“–‚ÈêŠ‚Éˆ³kƒtƒ@ƒCƒ‹‚ğ“WŠJ‚µ‚Ä‚­‚¾‚³‚¢B
+â—‹ Installation method
+Extract the compressed file to an appropriate location.
 
-›ƒAƒ“ƒCƒ“ƒXƒg[ƒ‹•û–@
-@ƒtƒHƒ‹ƒ_‚²‚Æíœ‚µ‚Ä‚­‚¾‚³‚¢BƒŒƒWƒXƒgƒŠ‚Íg‚Á‚Ä‚Ü‚¹‚ñB
+â—‹ How to uninstall
+Delete all folders. The registry is not used.
 
-›ƒL[ƒ{[ƒh‘€ì
-@@ƒJ[ƒ\ƒ‹ƒL[FˆÚ“®
-@@ZF’e(‰Ÿ‚µ‚Á‚Ï‚È‚µ‚ÅƒI[ƒg˜AË)AŒˆ’è
-@@XFƒ{ƒ€AƒLƒƒƒ“ƒZƒ‹
-@@¶ShiftFŒ¸‘¬ˆÚ“®
-@@¶CtrlF‚‘¬Ä¶
-@@RFƒŠƒZƒbƒg(ƒ^ƒCƒgƒ‹‰æ–Ê‚É–ß‚é)
-@@BackSpaceFƒŠƒgƒ‰ƒC
-
+â—‹ Keyboard operation
+Cursor key: Move
+Z: Bullet (automatic fire by pressing and holding), decision
+X: Bomb, Cancel
+Left Shift: Decelerate movement
+Left Ctrl: Fast playback
+R: Reset (return to title screen)
+BackSpace: Retry
